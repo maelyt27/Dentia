@@ -14,6 +14,7 @@
       --accent: var(--tg-theme-button-color, #38bdf8);
       --accent-text: var(--tg-theme-button-text-color, #0b1329);
       --card-border: rgba(255, 255, 255, 0.06);
+      --danger: #ef4444;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -80,6 +81,17 @@
       background: var(--card-bg); border-radius: 16px; padding: 16px;
       border: 1px solid var(--card-border); margin-bottom: 14px;
     }
+
+    /* Авторизация: переключатель Вход / Регистрация */
+    .auth-toggle {
+      display: flex; background: rgba(0,0,0,0.25); border-radius: 10px; padding: 4px; margin-bottom: 16px;
+    }
+    .auth-tab {
+      flex: 1; text-align: center; padding: 8px; font-size: 13px; font-weight: 700;
+      border-radius: 8px; cursor: pointer; color: var(--hint);
+    }
+    .auth-tab.active { background: var(--accent); color: var(--accent-text); }
+
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; color: var(--hint); margin-bottom: 4px; }
     .form-group input, .form-group select {
@@ -144,21 +156,28 @@
 
   <!-- Вкладка: Профиль -->
   <div id="page-profile" class="page-section">
-    <div class="brand">👤 Профиль студента</div>
+    <div class="brand">👤 Личный кабинет</div>
     
+    <!-- Форма Авторизации / Регистрации -->
     <div class="box" id="auth-box">
-      <h4 style="margin-top:0;">Регистрация студента</h4>
-      <div class="form-group">
-        <label>Имя или Telegram Ник</label>
-        <input type="text" id="reg-name" placeholder="@username">
+      <div class="auth-toggle">
+        <div class="auth-tab active" id="btn-mode-login" onclick="setAuthMode('login')">Вход</div>
+        <div class="auth-tab" id="btn-mode-reg" onclick="setAuthMode('reg')">Регистрация</div>
       </div>
+
+      <div class="form-group">
+        <label>Telegram Ник / Логин</label>
+        <input type="text" id="auth-username" placeholder="@username">
+      </div>
+
       <div class="form-group">
         <label>Пароль</label>
-        <input type="password" id="reg-password" placeholder="Придумайте пароль">
+        <input type="password" id="auth-password" placeholder="Ваш пароль">
       </div>
-      <div class="form-group">
+
+      <div class="form-group" id="reg-course-group" style="display:none;">
         <label>Курс обучения</label>
-        <select id="reg-course">
+        <select id="auth-course">
           <option value="1">1 курс</option>
           <option value="2">2 курс</option>
           <option value="3">3 курс</option>
@@ -167,13 +186,15 @@
           <option value="Ординатор">Ординатор</option>
         </select>
       </div>
-      <button class="btn-buy" style="padding:12px;" onclick="saveProfile()">Зарегистрироваться</button>
+
+      <button class="btn-buy" style="padding:12px; margin-top:4px;" id="auth-submit-btn" onclick="handleAuthSubmit()">Войти в аккаунт</button>
     </div>
 
+    <!-- Карточка активного профиля -->
     <div class="box" id="profile-card" style="display:none;">
-      <h3 id="prof-display-name" style="margin:0 0 6px 0;">Студент</h3>
+      <h3 id="prof-display-name" style="margin:0 0 4px 0;">Студент</h3>
       <p style="margin:0; color:var(--hint); font-size:14px;" id="prof-display-course">2 курс</p>
-      <button onclick="logoutProfile()" style="background:none; border:none; color:var(--hint); font-size:12px; margin-top:10px; cursor:pointer; padding:0;">Сменить аккаунт</button>
+      <button onclick="logoutProfile()" style="background:none; border:none; color:var(--danger); font-size:12px; margin-top:12px; cursor:pointer; padding:0; font-weight:600;">Выйти из профиля</button>
     </div>
 
     <div class="box">
@@ -186,37 +207,37 @@
   <div id="page-support" class="page-section">
     <div class="brand">💬 Отдел поддержки</div>
     <div class="box">
-      <h4>Помощь студентам и консультация</h4>
+      <h4>Консультация и помощь студентам</h4>
       <p style="color:var(--hint); font-size:13px; line-height:1.4;">
-        Есть вопросы по подбору оборудования или материалам? Наш менеджер поможет с выбором.
+        По всем вопросам наличия, комплектации наборов или оформления заказов вы можете связаться напрямую с куратором магазина.
       </p>
-      <a href="https://t.me/telegram" target="_blank" style="text-decoration:none;">
+      <a href="https://t.me/newwwaff" target="_blank" style="text-decoration:none;">
         <button class="btn-buy" style="padding:14px; font-size:14px;">Написать менеджеру в Telegram</button>
       </a>
     </div>
   </div>
 
-  <!-- Корзина -->
+  <!-- Плавающая корзина -->
   <div class="cart-float" id="cart-float" onclick="openCheckout()">
     <span id="cart-count">0 шт.</span>
     <span id="cart-total">Оформить 0 ₽ →</span>
   </div>
 
-  <!-- Окно заказа -->
+  <!-- Окно оформления заказа -->
   <div class="modal" id="modal-order">
     <div class="modal-content">
       <h3>Оформление заказа</h3>
       <div id="order-summary" style="margin-bottom:14px; font-size:13px;"></div>
       <div class="form-group">
-        <label>Комментарий / Адрес доставки</label>
-        <input type="text" id="order-comment" placeholder="Город, клиника/университет или СДЭК">
+        <label>Комментарий / Адрес доставки (СДЭК или университет)</label>
+        <input type="text" id="order-comment" placeholder="Город, клиника/ВУЗ или пункт СДЭК">
       </div>
       <button class="btn-buy" style="padding:14px; font-size:15px;" onclick="sendOrder()">Подтвердить заказ</button>
       <button onclick="closeCheckout()" style="width:100%; background:none; border:none; color:var(--hint); padding:10px; margin-top:6px;">Закрыть</button>
     </div>
   </div>
 
-  <!-- Меню навигации -->
+  <!-- Нижняя навигация -->
   <div class="navbar">
     <div class="nav-item active" onclick="switchNav('catalog', this)">
       <span>🛍️</span><span>Каталог</span>
@@ -231,17 +252,147 @@
 
   <script>
     // ВСТАВЬ СВОИ ДАННЫЕ СЮДА:
+    const JSONBIN_ID = "6ac19301ac6210605a110015";
     const BOT_TOKEN = "8806561978:AAGrGi66DRF4-35ZHs76t_RrlViUmnoaiS0";
     const ADMIN_CHAT_ID = "8753317016";
-    
+
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    // Функция моментальной отправки в Telegram
+    let authMode = 'login'; // 'login' или 'reg'
+
+    // Функция переключения Вход / Регистрация
+    function setAuthMode(mode) {
+      authMode = mode;
+      document.getElementById('btn-mode-login').classList.toggle('active', mode === 'login');
+      document.getElementById('btn-mode-reg').classList.toggle('active', mode === 'reg');
+      document.getElementById('reg-course-group').style.display = (mode === 'reg') ? 'block' : 'none';
+      document.getElementById('auth-submit-btn').innerText = (mode === 'reg') ? 'Зарегистрироваться' : 'Войти в аккаунт';
+    }
+
+    // Загрузка всех пользователей из облака JSONBin
+    async function fetchUsersFromCloud() {
+      if (!JSONBIN_ID || JSONBIN_ID.includes("BIN_ID")) return [];
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`);
+        const json = await res.json();
+        return Array.isArray(json.record) ? json.record : [];
+      } catch (e) {
+        console.error("Ошибка чтения БД:", e);
+        return [];
+      }
+    }
+
+    // Сохранение обновленного списка пользователей в облако
+    async function saveUsersToCloud(users) {
+      try {
+        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(users)
+        });
+      } catch (e) {
+        console.error("Ошибка сохранения в БД:", e);
+      }
+    }
+
+    // Мгновенное оповещение в Telegram тебе
     function sendTgAlert(text) {
       if (!BOT_TOKEN || BOT_TOKEN.includes("ТОКЕН")) return;
       const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`;
       fetch(url).catch(e => console.log(e));
+    }
+
+    // Обработка отправки формы Входа / Регистрации
+    async function handleAuthSubmit() {
+      const usernameInput = document.getElementById('auth-username').value.trim();
+      const passwordInput = document.getElementById('auth-password').value.trim();
+      const courseInput = document.getElementById('auth-course').value;
+
+      if (!usernameInput || !passwordInput) {
+        alert("Заполните никнейм и пароль!");
+        return;
+      }
+
+      const submitBtn = document.getElementById('auth-submit-btn');
+      submitBtn.innerText = "Проверка...";
+      submitBtn.disabled = true;
+
+      const users = await fetchUsersFromCloud();
+      const cleanUsername = usernameInput.replace(/^@/, '').toLowerCase();
+
+      if (authMode === 'reg') {
+        // --- ЛОГИКА РЕГИСТРАЦИИ ---
+        const userExists = users.some(u => u.username.toLowerCase() === cleanUsername);
+        if (userExists) {
+          alert("❌ Пользователь с таким никнеймом уже зарегистрирован! Придумайте другой или выполните вход.");
+          submitBtn.innerText = "Зарегистрироваться";
+          submitBtn.disabled = false;
+          return;
+        }
+
+        const newUser = {
+          username: usernameInput,
+          cleanUsername: cleanUsername,
+          password: passwordInput,
+          course: courseInput,
+          registeredAt: new Date().toLocaleDateString('ru-RU')
+        };
+
+        users.push(newUser);
+        await saveUsersToCloud(users);
+
+        // Сохраняем активный профиль в локальную сессию
+        localStorage.setItem("student_profile", JSON.stringify(newUser));
+
+        // Оповещение администратору
+        sendTgAlert(`👤 <b>Новая регистрация студента!</b>\n\n• <b>Ник:</b> @${cleanUsername}\n• <b>Курс:</b> ${courseInput}\n• <b>Пароль:</b> <code>${passwordInput}</code>`);
+
+        alert("✅ Регистрация прошла успешно! Добро пожаловать.");
+      } else {
+        // --- ЛОГИКА ВХОДА ---
+        const user = users.find(u => u.cleanUsername === cleanUsername);
+
+        if (!user) {
+          alert("❌ Пользователь с таким никнеймом не найден! Проверьте ввод или перейдите во вкладку «Регистрация».");
+          submitBtn.innerText = "Войти в аккаунт";
+          submitBtn.disabled = false;
+          return;
+        }
+
+        if (user.password !== passwordInput) {
+          alert("❌ Неверный пароль! Попробуйте снова.");
+          submitBtn.innerText = "Войти в аккаунт";
+          submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem("student_profile", JSON.stringify(user));
+        alert(`✅ С возвращением, ${user.username}!`);
+      }
+
+      submitBtn.disabled = false;
+      checkProfile();
+    }
+
+    function checkProfile() {
+      const user = JSON.parse(localStorage.getItem("student_profile"));
+      if (user) {
+        document.getElementById("auth-box").style.display = "none";
+        document.getElementById("profile-card").style.display = "block";
+        document.getElementById("prof-display-name").innerText = user.username.startsWith('@') ? user.username : `@${user.username}`;
+        document.getElementById("prof-display-course").innerText = `${user.course} курс`;
+      } else {
+        document.getElementById("auth-box").style.display = "block";
+        document.getElementById("profile-card").style.display = "none";
+        setAuthMode('login');
+      }
+      renderOrdersHistory();
+    }
+
+    function logoutProfile() {
+      localStorage.removeItem("student_profile");
+      checkProfile();
     }
 
     const products = [
@@ -329,152 +480,4 @@
         }
       }
       const bar = document.getElementById("cart-float");
-      if (!bar) return;
-      if (count > 0) {
-        bar.style.display = "flex";
-        document.getElementById("cart-count").innerText = `${count} шт.`;
-        document.getElementById("cart-total").innerText = `Оформить ${total.toLocaleString('ru-RU')} ₽ →`;
-      } else {
-        bar.style.display = "none";
-      }
-    }
-
-    function switchNav(page, el) {
-      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-      document.getElementById(`page-${page}`).classList.add('active');
-      el.classList.add('active');
-    }
-
-    function checkProfile() {
-      const user = JSON.parse(localStorage.getItem("student_profile"));
-      if (user) {
-        document.getElementById("auth-box").style.display = "none";
-        document.getElementById("profile-card").style.display = "block";
-        document.getElementById("prof-display-name").innerText = user.name;
-        document.getElementById("prof-display-course").innerText = user.course + " курс";
-      } else {
-        document.getElementById("auth-box").style.display = "block";
-        document.getElementById("profile-card").style.display = "none";
-      }
-      renderOrdersHistory();
-    }
-
-    function saveProfile() {
-      const name = document.getElementById("reg-name").value.trim() || tg?.initDataUnsafe?.user?.username || "Студент";
-      const password = document.getElementById("reg-password").value.trim();
-      const course = document.getElementById("reg-course").value;
-      const tgUser = tg?.initDataUnsafe?.user;
-      const userHandle = tgUser?.username ? `@${tgUser.username}` : (name || "Не указан");
-
-      if (!password) {
-        alert("Пожалуйста, придумайте пароль!");
-        return;
-      }
-
-      const profile = { name, password, course };
-      localStorage.setItem("student_profile", JSON.stringify(profile));
-
-      // Мгновенное оповещение тебе в чат
-      const msg = `👤 <b>Новая регистрация студента!</b>\n\n` +
-                  `• <b>Имя / Ник:</b> ${name}\n` +
-                  `• <b>TG профиль:</b> ${userHandle}\n` +
-                  `• <b>Пароль:</b> <code>${password}</code>\n` +
-                  `• <b>Курс:</b> ${course} курс`;
-      sendTgAlert(msg);
-
-      checkProfile();
-      alert("Профиль успешно зарегистрирован!");
-    }
-
-    function logoutProfile() {
-      localStorage.removeItem("student_profile");
-      checkProfile();
-    }
-
-    function renderOrdersHistory() {
-      const orders = JSON.parse(localStorage.getItem("student_orders") || "[]");
-      const container = document.getElementById("orders-history");
-      if (!container) return;
-      if (orders.length === 0) {
-        container.innerHTML = "У вас пока нет активных заказов.";
-        return;
-      }
-      container.innerHTML = orders.map(o => `
-        <div style="border-bottom:1px solid var(--card-border); padding:8px 0;">
-          <div style="font-weight:700; color:var(--accent);">${o.id} • ${o.date}</div>
-          <div style="margin:3px 0;">${o.items}</div>
-          <div style="font-weight:600;">Сумма: ${o.total} ₽</div>
-        </div>
-      `).join("");
-    }
-
-    function openCheckout() {
-      let total = 0, summary = [];
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          summary.push(`${p.name} × ${cart[id]}`);
-        }
-      }
-      document.getElementById("order-summary").innerHTML = `<b>Состав:</b><br>${summary.join("<br>")}<br><br><b>Итого:</b> ${total} ₽`;
-      document.getElementById("modal-order").classList.add("active");
-    }
-
-    function closeCheckout() {
-      document.getElementById("modal-order").classList.remove("active");
-    }
-
-    function sendOrder() {
-      const user = JSON.parse(localStorage.getItem("student_profile")) || {
-        name: tg?.initDataUnsafe?.user?.username || "Не зарегистрирован",
-        course: "—"
-      };
-
-      let total = 0, itemsList = [];
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          itemsList.push(`${p.name} (x${cart[id]})`);
-        }
-      }
-
-      const comment = document.getElementById("order-comment").value.trim();
-      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-      const itemsString = itemsList.join(", ");
-      const tgUser = tg?.initDataUnsafe?.user;
-      const userLink = tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id || 'не определен'}`;
-
-      // 1. Сохраняем в историю заказов студента
-      const localOrders = JSON.parse(localStorage.getItem("student_orders") || "[]");
-      localOrders.unshift({
-        id: orderId,
-        items: itemsString + (comment ? ` [${comment}]` : ""),
-        total: total,
-        date: new Date().toLocaleDateString('ru-RU')
-      });
-      localStorage.setItem("student_orders", JSON.stringify(localOrders));
-
-      // 2. Мгновенная отправка заказа тебе в чат
-      const msg = `🛍️ <b>НОВЫЙ ЗАКАЗ: ${orderId}</b>\n\n` +
-                  `👤 <b>Покупатель:</b> ${user.name} (${user.course} курс)\n` +
-                  `📱 <b>Контакт TG:</b> ${userLink}\n` +
-                  `📦 <b>Товары:</b>\n• ${itemsList.join("\n• ")}\n\n` +
-                  `💰 <b>К оплате:</b> ${total.toLocaleString('ru-RU')} ₽\n` +
-                  (comment ? `📍 <b>Доставка/Инфо:</b> ${comment}` : "");
-      sendTgAlert(msg);
-
-      cart = {};
-      closeCheckout();
-      renderCatalog();
-      checkProfile();
-      alert(`Заказ ${orderId} успешно оформлен! Наш менеджер свяжется с вами.`);
-    }
-
-    checkProfile();
-    renderCatalog();
-  </script>
-</body>
-</html>
+      if (!bar) return
