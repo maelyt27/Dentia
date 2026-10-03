@@ -3,354 +3,306 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dental Store</title>
+  <title>Dental Store & Student Portal</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg: var(--tg-theme-bg-color, #0f172a);
-      --card-bg: var(--tg-theme-secondary-bg-color, #1e293b);
-      --text: var(--tg-theme-text-color, #f8fafc);
+      --bg: var(--tg-theme-bg-color, #0b1329);
+      --card-bg: var(--tg-theme-secondary-bg-color, #16203d);
+      --text: var(--tg-theme-text-color, #f1f5f9);
       --hint: var(--tg-theme-hint-color, #94a3b8);
       --accent: var(--tg-theme-button-color, #38bdf8);
-      --accent-text: var(--tg-theme-button-text-color, #0f172a);
-      --badge-bg: rgba(56, 189, 248, 0.15);
-      --danger: #f43f5e;
+      --accent-text: var(--tg-theme-button-text-color, #0b1329);
+      --success: #10b981;
+      --card-border: rgba(255, 255, 255, 0.06);
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      padding-bottom: 90px;
+      padding-bottom: 95px;
     }
 
-    /* Верхняя плашка и поиск */
     header {
       padding: 16px;
-      position: sticky;
-      top: 0;
+      position: sticky; top: 0;
       background: var(--bg);
       z-index: 10;
-      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
     }
 
-    .brand-title {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin: 0 0 12px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 
-    /* Категории (чипсы) */
-    .categories {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 4px;
+    /* Верхние разделы */
+    .tabs-nav {
+      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px;
     }
-    .categories::-webkit-scrollbar { display: none; }
+    .tabs-nav::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      padding: 8px 16px; border-radius: 12px; background: var(--card-bg);
+      color: var(--hint); font-size: 13px; font-weight: 700; white-space: nowrap;
+      border: 1px solid var(--card-border); cursor: pointer;
+    }
+    .tab-btn.active { background: var(--accent); color: var(--accent-text); }
 
-    .chip {
-      padding: 8px 16px;
-      border-radius: 20px;
-      background: var(--card-bg);
-      color: var(--hint);
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 1px solid rgba(255,255,255,0.05);
+    /* Подкатегории для вкладки «Наборы» */
+    .subtabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-top: 6px; }
+    .subtabs::-webkit-scrollbar { display: none; }
+    .sub-btn {
+      padding: 5px 12px; border-radius: 20px; background: rgba(255,255,255,0.04);
+      color: var(--hint); font-size: 11px; font-weight: 600; white-space: nowrap;
+      border: 1px solid var(--card-border); cursor: pointer;
     }
-    .chip.active {
-      background: var(--accent);
-      color: var(--accent-text);
-      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-    }
+    .sub-btn.active { background: rgba(56, 189, 248, 0.2); color: var(--accent); border-color: var(--accent); }
 
     /* Сетка товаров */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      padding: 0 16px;
-    }
-
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 14px 16px; }
     .card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      transition: transform 0.15s ease;
-      position: relative;
+      background: var(--card-bg); border-radius: 16px; padding: 12px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      border: 1px solid var(--card-border);
     }
-    .card:active {
-      transform: scale(0.98);
+    .card-icon { height: 70px; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+    .card-title { font-size: 13px; font-weight: 600; margin: 6px 0; min-height: 32px; line-height: 1.25; }
+    .card-price { font-size: 15px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+
+    .btn-buy {
+      background: var(--accent); color: var(--accent-text); border: none;
+      border-radius: 8px; padding: 8px; font-weight: 700; font-size: 12px; cursor: pointer; width: 100%;
+    }
+    .counter {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255,255,255,0.06); border-radius: 8px; padding: 3px;
+    }
+    .counter button {
+      background: var(--accent); color: var(--accent-text); border: none;
+      width: 26px; height: 26px; border-radius: 6px; font-weight: 800; cursor: pointer;
     }
 
-    .card-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: var(--badge-bg);
-      color: var(--accent);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      text-transform: uppercase;
+    /* Экраны Профиль и Поддержка */
+    .page-section { display: none; padding: 16px; }
+    .page-section.active { display: block; }
+
+    .box {
+      background: var(--card-bg); border-radius: 16px; padding: 16px;
+      border: 1px solid var(--card-border); margin-bottom: 14px;
+    }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; color: var(--hint); margin-bottom: 4px; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.2);
+      border: 1px solid var(--card-border); color: #fff; font-size: 14px; outline: none;
     }
 
-    .card-img {
-      width: 100%;
-      height: 100px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.03);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 38px;
-      margin-bottom: 10px;
+    /* Нижняя навигация */
+    .navbar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--card-bg); border-top: 1px solid var(--card-border);
+      display: flex; justify-content: space-around; padding: 8px 0; z-index: 100;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      color: var(--hint); font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .nav-item.active { color: var(--accent); }
+    .nav-item span:first-child { font-size: 18px; }
+
+    /* Плавающая корзина */
+    .cart-float {
+      position: fixed; bottom: 65px; left: 16px; right: 16px;
+      background: var(--accent); color: var(--accent-text); padding: 12px 18px;
+      border-radius: 14px; display: none; justify-content: space-between;
+      align-items: center; font-weight: 700; z-index: 99; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
     }
 
-    .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1.3;
-      margin: 0 0 6px 0;
-      min-height: 36px;
+    /* Модалка оформления */
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200;
+      display: none; align-items: flex-end;
     }
-
-    .card-price {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--accent);
-      margin-bottom: 10px;
-    }
-
-    /* Кнопки добавления / счетчик */
-    .btn-add {
-      background: var(--accent);
-      color: var(--accent-text);
-      border: none;
-      border-radius: 10px;
-      padding: 10px;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      width: 100%;
-      transition: opacity 0.2s;
-    }
-    .btn-add:active { opacity: 0.8; }
-
-    .counter-block {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      padding: 4px;
-    }
-    .counter-btn {
-      background: var(--accent);
-      color: var(--accent-text);
-      border: none;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .counter-val {
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    /* Плавающая кнопка корзины внизу */
-    .bottom-bar {
-      position: fixed;
-      bottom: 16px;
-      left: 16px;
-      right: 16px;
-      background: var(--accent);
-      color: var(--accent-text);
-      padding: 14px 20px;
-      border-radius: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 100;
-      transform: translateY(150%);
-    }
-    .bottom-bar.visible {
-      transform: translateY(0);
-    }
-
-    /* Шторка корзины (Modal Drawer) */
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .drawer-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .drawer {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--card-bg);
-      border-radius: 24px 24px 0 0;
-      padding: 20px;
-      z-index: 201;
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-      max-height: 80vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .drawer.active {
-      transform: translateY(0);
-    }
-
-    .drawer-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .drawer-items {
-      overflow-y: auto;
-      flex-grow: 1;
-      margin-bottom: 16px;
-    }
-    .drawer-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .checkout-btn {
-      width: 100%;
-      background: var(--accent);
-      color: var(--accent-text);
-      border: none;
-      padding: 16px;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--card-bg); width: 100%; border-radius: 20px 20px 0 0;
+      padding: 20px; max-height: 80vh; overflow-y: auto;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="brand-title">🦷 Dental Equipment</div>
-    <div class="categories">
-      <div class="chip active" onclick="filterCategory('all', this)">Все товары</div>
-      <div class="chip" onclick="filterCategory('handpieces', this)">Наконечники</div>
-      <div class="chip" onclick="filterCategory('phantoms', this)">Фантомы</div>
-      <div class="chip" onclick="filterCategory('therapy', this)">Терапия & Боры</div>
-    </div>
-  </header>
+  <!-- 1. СТРАНИЦА КАТАЛОГА -->
+  <div id="page-catalog" class="page-section active" style="padding:0;">
+    <header>
+      <div class="brand">🦷 Dental Student Store</div>
+      <div class="tabs-nav">
+        <div class="tab-btn active" onclick="switchMainTab('kits', this)">📦 Наборы</div>
+        <div class="tab-btn" onclick="switchMainTab('instruments', this)">🛠️ Инструментарий</div>
+        <div class="tab-btn" onclick="switchMainTab('clothes', this)">🥼 Спец.одежда</div>
+        <div class="tab-btn" onclick="switchMainTab('courseworks', this)">📑 Курсовые</div>
+        <div class="tab-btn" onclick="switchMainTab('courses', this)">🎓 Курсы</div>
+      </div>
 
-  <div class="grid" id="catalog"></div>
+      <!-- Вложенные подкатегории наборов -->
+      <div class="subtabs" id="kits-subtabs">
+        <div class="sub-btn active" onclick="switchSubTab('therapy', this)">Терапия</div>
+        <div class="sub-btn" onclick="switchSubTab('endo', this)">Эндодонтия</div>
+        <div class="sub-btn" onclick="switchSubTab('surgery', this)">Хирургия</div>
+        <div class="sub-btn" onclick="switchSubTab('ozpt', this)">ОЗПТ</div>
+      </div>
+    </header>
 
-  <!-- Плавающая плашка корзины -->
-  <div class="bottom-bar" id="cart-bar" onclick="openDrawer()">
-    <span id="bar-count">Корзина: 0 шт.</span>
-    <span id="bar-total">0 ₽ →</span>
+    <div class="grid" id="catalog-grid"></div>
   </div>
 
-  <!-- Шторка корзины -->
-  <div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
-  <div class="drawer" id="drawer">
-    <div class="drawer-header">
-      <h3 style="margin:0; font-size:18px;">Ваш заказ</h3>
-      <span style="cursor:pointer; font-size: 20px;" onclick="closeDrawer()">✕</span>
+  <!-- 2. СТРАНИЦА ПРОФИЛЯ -->
+  <div id="page-profile" class="page-section">
+    <div class="brand">👤 Профиль студента</div>
+    
+    <div class="box" id="auth-box">
+      <h4 style="margin-top:0;">Регистрация в клубе</h4>
+      <div class="form-group">
+        <label>Имя или Telegram Ник</label>
+        <input type="text" id="reg-name" placeholder="@username">
+      </div>
+      <div class="form-group">
+        <label>Курс обучения</label>
+        <select id="reg-course">
+          <option value="1">1 курс</option>
+          <option value="2">2 курс</option>
+          <option value="3">3 курс</option>
+          <option value="4">4 курс</option>
+          <option value="5">5 курс</option>
+          <option value="Ординатор">Ординатор</option>
+        </select>
+      </div>
+      <button class="btn-buy" style="padding:12px;" onclick="saveProfile()">Сохранить профиль</button>
     </div>
-    <div class="drawer-items" id="drawer-items"></div>
-    <div style="display:flex; justify-content:space-between; margin-bottom: 16px; font-weight:800; font-size:18px;">
-      <span>Итого к оплате:</span>
-      <span id="drawer-total" style="color:var(--accent);">0 ₽</span>
+
+    <div class="box" id="profile-card" style="display:none;">
+      <h3 id="prof-display-name" style="margin:0 0 6px 0;">Студент</h3>
+      <p style="margin:0; color:var(--hint); font-size:14px;" id="prof-display-course">2 курс</p>
+      <button onclick="logoutProfile()" style="background:none; border:none; color:var(--hint); font-size:12px; margin-top:10px; cursor:pointer; padding:0;">Изменить данные</button>
     </div>
-    <button class="checkout-btn" onclick="submitOrder()">Подтвердить заказ</button>
+
+    <div class="box">
+      <h4 style="margin:0 0 10px 0;">📦 Актуальные заказы</h4>
+      <div id="orders-history" style="font-size:13px; color:var(--hint);">У вас пока нет активных заказов.</div>
+    </div>
+  </div>
+
+  <!-- 3. СТРАНИЦА ПОДДЕРЖКИ -->
+  <div id="page-support" class="page-section">
+    <div class="brand">💬 Отдел поддержки</div>
+    <div class="box">
+      <h4>Помощь студентам и консультация</h4>
+      <p style="color:var(--hint); font-size:13px; line-height:1.4;">
+        Есть вопросы по подбору оборудования, наличию инструментария или студенческим материалам? Наш менеджер на связи.
+      </p>
+      <!-- Укажи здесь свою ссылку Telegram -->
+      <a href="https://t.me/твой_саппорт" target="_blank" style="text-decoration:none;">
+        <button class="btn-buy" style="padding:14px; font-size:14px;">Написать менеджеру в Telegram</button>
+      </a>
+    </div>
+  </div>
+
+  <!-- Плавающая корзина -->
+  <div class="cart-float" id="cart-float" onclick="openCheckout()">
+    <span id="cart-count">0 шт.</span>
+    <span id="cart-total">Оформить 0 ₽ →</span>
+  </div>
+
+  <!-- Модалка оформления -->
+  <div class="modal" id="modal-order">
+    <div class="modal-content">
+      <h3>Оформление заказа</h3>
+      <div id="order-summary" style="margin-bottom:14px; font-size:13px;"></div>
+      <div class="form-group">
+        <label>Комментарий / Адрес доставки</label>
+        <input type="text" id="order-comment" placeholder="Город, клиника/университет или СДЭК">
+      </div>
+      <button class="btn-buy" style="padding:14px; font-size:15px;" onclick="sendOrder()">Подтвердить и отправить</button>
+      <button onclick="closeCheckout()" style="width:100%; background:none; border:none; color:var(--hint); padding:10px; margin-top:6px;">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Нижняя панель навигации -->
+  <div class="navbar">
+    <div class="nav-item active" onclick="switchNav('catalog', this)">
+      <span>🛍️</span><span>Каталог</span>
+    </div>
+    <div class="nav-item" onclick="switchNav('profile', this)">
+      <span>👤</span><span>Профиль</span>
+    </div>
+    <div class="nav-item" onclick="switchNav('support', this)">
+      <span>💬</span><span>Поддержка</span>
+    </div>
   </div>
 
   <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+    // ВСТАВЬ ССЫЛКУ ИЗ РАЗВЕРТЫВАНИЯ GOOGLE APPS SCRIPT:
+    const API_URL = "https://script.google.com/macros/s/ВАШ_GOOGLE_APPS_SCRIPT_ID/exec";
 
-    const catalog = [
-      { id: 1, cat: 'handpieces', icon: '⚡', badge: 'Хит', name: 'Турбинный наконечник с LED', price: 4200 },
-      { id: 2, cat: 'handpieces', icon: '⚙️', badge: 'В наличии', name: 'Угловой наконечник 1:1', price: 2800 },
-      { id: 3, cat: 'phantoms', icon: '💀', badge: 'Топ продаж', name: 'Фантом челюсти (32 зуба)', price: 3400 },
-      { id: 4, cat: 'phantoms', icon: '🦷', badge: 'Запасной', name: 'Комплект зубов для фантома (28 шт.)', price: 1200 },
-      { id: 5, cat: 'therapy', icon: '💎', badge: 'Набор', name: 'Алмазные боры (комплект 10 шт.)', price: 950 },
-      { id: 6, cat: 'therapy', icon: '🛡️', badge: 'Изоляция', name: 'Набор коффердама (пробойник + щипцы)', price: 4900 }
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.expand();
+
+    // База каталога товаров
+    const products = [
+      // Наборы -> Терапия
+      { id: 1, tab: 'kits', sub: 'therapy', icon: '🩺', name: 'Терапевтический набор студента (базовый)', price: 4900 },
+      // Наборы -> Эндодонтия
+      { id: 2, tab: 'kits', sub: 'endo', icon: '📍', name: 'Эндодонтический набор (К-файлы, спредеры, плаггеры)', price: 3400 },
+      // Наборы -> Хирургия
+      { id: 3, tab: 'kits', sub: 'surgery', icon: '🪡', name: 'Хирургический набор (элеваторы, щипцы, шовник)', price: 5800 },
+      // Наборы -> ОЗПТ
+      { id: 4, tab: 'kits', sub: 'ozpt', icon: '🦷', name: 'Набор для фантомного курса ОЗПТ', price: 6200 },
+      
+      // Инструментарий
+      { id: 5, tab: 'instruments', icon: '⚡', name: 'Турбинный наконечник с LED подсветкой', price: 3900 },
+      { id: 6, tab: 'instruments', icon: '⚙️', name: 'Угловой механический наконечник 1:1', price: 2600 },
+      { id: 7, tab: 'instruments', icon: '🛡️', name: 'Набор коффердама с клампами', price: 4200 },
+
+      // Спец.одежда
+      { id: 8, tab: 'clothes', icon: '🥼', name: 'Медицинский хирургический костюм (хлопок)', price: 2800 },
+      { id: 9, tab: 'clothes', icon: '👓', name: 'Защитные оптические очки', price: 850 },
+
+      // Курсовые
+      { id: 10, tab: 'courseworks', icon: '📑', name: 'Курсовая: Пропедевтика / Материаловедение', price: 1500 },
+      { id: 11, tab: 'courseworks', icon: '📑', name: 'Курсовая: Остеохондроз и эргономика стоматолога', price: 1800 },
+
+      // Курсы
+      { id: 12, tab: 'courses', icon: '🎓', name: 'Практический онлайн-курс по препарированию', price: 2500 }
     ];
 
+    let currentTab = 'kits';
+    let currentSub = 'therapy';
     let cart = {}; // { id: count }
-    let currentFilter = 'all';
 
     function renderCatalog() {
-      const container = document.getElementById("catalog");
+      const container = document.getElementById("catalog-grid");
       container.innerHTML = "";
 
-      const filtered = currentFilter === 'all' 
-        ? catalog 
-        : catalog.filter(p => p.cat === currentFilter);
+      const filtered = products.filter(p => {
+        if (p.tab !== currentTab) return false;
+        if (currentTab === 'kits' && p.sub !== currentSub) return false;
+        return true;
+      });
 
       filtered.forEach(p => {
         const count = cart[p.id] || 0;
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <div class="card-badge">${p.badge}</div>
-          <div class="card-img">${p.icon}</div>
+          <div class="card-icon">${p.icon}</div>
           <div class="card-title">${p.name}</div>
           <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
           ${count === 0 
-            ? `<button class="btn-add" onclick="updateCount(${p.id}, 1)">Купить</button>` 
-            : `<div class="counter-block">
-                <button class="counter-btn" onclick="updateCount(${p.id}, -1)">−</button>
-                <span class="counter-val">${count}</span>
-                <button class="counter-btn" onclick="updateCount(${p.id}, 1)">+</button>
+            ? `<button class="btn-buy" onclick="updateCart(${p.id}, 1)">В корзину</button>`
+            : `<div class="counter">
+                <button onclick="updateCart(${p.id}, -1)">−</button>
+                <span>${count}</span>
+                <button onclick="updateCart(${p.id}, 1)">+</button>
                </div>`
           }
         `;
@@ -360,97 +312,185 @@
       updateCartBar();
     }
 
-    function filterCategory(cat, el) {
-      currentFilter = cat;
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    function switchMainTab(tab, el) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('kits-subtabs').style.display = (tab === 'kits') ? 'flex' : 'none';
+      renderCatalog();
+    }
+
+    function switchSubTab(sub, el) {
+      currentSub = sub;
+      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
       renderCatalog();
     }
 
-    function updateCount(id, delta) {
+    function updateCart(id, delta) {
       cart[id] = (cart[id] || 0) + delta;
       if (cart[id] <= 0) delete cart[id];
       renderCatalog();
-      renderDrawer();
-    }
-
-    function calculateTotal() {
-      let total = 0;
-      let count = 0;
-      for (let id in cart) {
-        const prod = catalog.find(p => p.id == id);
-        if (prod) {
-          total += prod.price * cart[id];
-          count += cart[id];
-        }
-      }
-      return { total, count };
     }
 
     function updateCartBar() {
-      const { total, count } = calculateTotal();
-      const bar = document.getElementById("cart-bar");
+      let total = 0, count = 0;
+      for (let id in cart) {
+        const p = products.find(i => i.id == id);
+        if (p) {
+          total += p.price * cart[id];
+          count += cart[id];
+        }
+      }
+      const bar = document.getElementById("cart-float");
       if (count > 0) {
-        bar.classList.add("visible");
-        document.getElementById("bar-count").innerText = `${count} шт.`;
-        document.getElementById("bar-total").innerText = `${total.toLocaleString('ru-RU')} ₽ →`;
+        bar.style.display = "flex";
+        document.getElementById("cart-count").innerText = `${count} шт.`;
+        document.getElementById("cart-total").innerText = `Оформить ${total.toLocaleString('ru-RU')} ₽ →`;
       } else {
-        bar.classList.remove("visible");
-        closeDrawer();
+        bar.style.display = "none";
       }
     }
 
-    function openDrawer() {
-      renderDrawer();
-      document.getElementById("overlay").classList.add("active");
-      document.getElementById("drawer").classList.add("active");
+    /* Навигация по страницам */
+    function switchNav(page, el) {
+      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.getElementById(`page-${page}`).classList.add('active');
+      el.classList.add('active');
     }
 
-    function closeDrawer() {
-      document.getElementById("overlay").classList.remove("active");
-      document.getElementById("drawer").classList.remove("active");
+    /* Профиль и БД */
+    function checkProfile() {
+      const user = JSON.parse(localStorage.getItem("student_profile"));
+      if (user) {
+        document.getElementById("auth-box").style.display = "none";
+        document.getElementById("profile-card").style.display = "block";
+        document.getElementById("prof-display-name").innerText = user.name;
+        document.getElementById("prof-display-course").innerText = user.course + " курс";
+      } else {
+        document.getElementById("auth-box").style.display = "block";
+        document.getElementById("profile-card").style.display = "none";
+      }
+      renderOrdersHistory();
     }
 
-    function renderDrawer() {
-      const container = document.getElementById("drawer-items");
-      container.innerHTML = "";
-      const { total } = calculateTotal();
+    function saveProfile() {
+      const name = document.getElementById("reg-name").value.trim() || tg?.initDataUnsafe?.user?.username || "Студент";
+      const course = document.getElementById("reg-course").value;
+      const userId = tg?.initDataUnsafe?.user?.id || ("local_" + Date.now());
 
+      const profile = { userId, name, course };
+      localStorage.setItem("student_profile", JSON.stringify(profile));
+
+      // Отправка в Google Таблицу (БД)
+      if (API_URL.startsWith("http")) {
+        fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "register", userId, username: name, course })
+        });
+      }
+
+      checkProfile();
+      alert("Профиль успешно сохранен!");
+    }
+
+    function logoutProfile() {
+      localStorage.removeItem("student_profile");
+      checkProfile();
+    }
+
+    function renderOrdersHistory() {
+      const orders = JSON.parse(localStorage.getItem("student_orders") || "[]");
+      const container = document.getElementById("orders-history");
+      if (orders.length === 0) {
+        container.innerHTML = "У вас пока нет активных заказов.";
+        return;
+      }
+      container.innerHTML = orders.map(o => `
+        <div style="border-bottom:1px solid var(--card-border); padding:8px 0;">
+          <div style="font-weight:700; color:var(--accent);">${o.id} • ${o.date}</div>
+          <div style="margin:3px 0;">${o.items}</div>
+          <div style="font-weight:600;">Сумма: ${o.total} ₽</div>
+        </div>
+      `).join("");
+    }
+
+    /* Модалка оформления и заказ */
+    function openCheckout() {
+      let total = 0, summary = [];
       for (let id in cart) {
-        const prod = catalog.find(p => p.id == id);
-        const item = document.createElement("div");
-        item.className = "drawer-item";
-        item.innerHTML = `
-          <div>
-            <div style="font-weight:600; font-size:14px;">${prod.name}</div>
-            <div style="color:var(--hint); font-size:12px;">${prod.price} ₽ × ${cart[id]}</div>
-          </div>
-          <div style="font-weight:700;">${(prod.price * cart[id]).toLocaleString('ru-RU')} ₽</div>
-        `;
-        container.appendChild(item);
+        const p = products.find(i => i.id == id);
+        if (p) {
+          total += p.price * cart[id];
+          summary.push(`${p.name} × ${cart[id]}`);
+        }
       }
-      document.getElementById("drawer-total").innerText = `${total.toLocaleString('ru-RU')} ₽`;
+      document.getElementById("order-summary").innerHTML = `<b>Состав:</b><br>${summary.join("<br>")}<br><br><b>Итого:</b> ${total} ₽`;
+      document.getElementById("modal-order").classList.add("active");
     }
 
-    function submitOrder() {
-      const { total, count } = calculateTotal();
-      if (count === 0) return;
+    function closeCheckout() {
+      document.getElementById("modal-order").classList.remove("active");
+    }
 
-      const orderItems = [];
-      for (let id in cart) {
-        const prod = catalog.find(p => p.id == id);
-        orderItems.push(`${prod.name} (${cart[id]} шт.)`);
-      }
-
-      const orderData = {
-        items: orderItems.join(", "),
-        totalPrice: total,
-        count: count
+    function sendOrder() {
+      const user = JSON.parse(localStorage.getItem("student_profile")) || {
+        userId: tg?.initDataUnsafe?.user?.id || "guest",
+        name: tg?.initDataUnsafe?.user?.username || "Не указан",
+        course: "Не указан"
       };
 
-      tg.sendData(JSON.stringify(orderData));
+      let total = 0, itemsList = [];
+      for (let id in cart) {
+        const p = products.find(i => i.id == id);
+        if (p) {
+          total += p.price * cart[id];
+          itemsList.push(`${p.name} (x${cart[id]})`);
+        }
+      }
+
+      const comment = document.getElementById("order-comment").value;
+      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+      const itemsString = itemsList.join(", ") + (comment ? ` [Инфо: ${comment}]` : "");
+
+      // 1. Сохранение в локальную историю студента
+      const localOrders = JSON.parse(localStorage.getItem("student_orders") || "[]");
+      localOrders.unshift({
+        id: orderId,
+        items: itemsString,
+        total: total,
+        date: new Date().toLocaleDateString('ru-RU')
+      });
+      localStorage.setItem("student_orders", JSON.stringify(localOrders));
+
+      // 2. Отправка в Google Таблицу и бот Telegram
+      if (API_URL.startsWith("http")) {
+        fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "order",
+            userId: user.userId,
+            username: user.name,
+            course: user.course,
+            items: itemsString,
+            totalPrice: total
+          })
+        });
+      }
+
+      cart = {};
+      closeCheckout();
+      renderCatalog();
+      checkProfile();
+      alert(`Заказ ${orderId} успешно оформлен! Наш менеджер свяжется с вами.`);
     }
 
+    checkProfile();
     renderCatalog();
   </script>
 </body>
