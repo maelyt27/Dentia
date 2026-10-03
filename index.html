@@ -375,28 +375,27 @@
       renderOrdersHistory();
     }
 
-    function saveProfile() {
-      const name = document.getElementById("reg-name").value.trim() || tg?.initDataUnsafe?.user?.username || "Студент";
-      const course = document.getElementById("reg-course").value;
-      const userId = tg?.initDataUnsafe?.user?.id || ("local_" + Date.now());
+function saveProfile() {
+  const name = document.getElementById("reg-name").value.trim() || tg?.initDataUnsafe?.user?.username || "Студент";
+  const course = document.getElementById("reg-course").value;
+  const userId = tg?.initDataUnsafe?.user?.id || ("local_" + Date.now());
 
-      const profile = { userId, name, course };
-      localStorage.setItem("student_profile", JSON.stringify(profile));
+  const profile = { userId, name, course };
+  localStorage.setItem("student_profile", JSON.stringify(profile));
 
-      // Отправка в Google Таблицу (БД)
-      if (API_URL.startsWith("http")) {
-        fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "register", userId, username: name, course })
-        });
-      }
+  // Надежная отправка в Google Таблицу
+  if (API_URL && API_URL.startsWith("http")) {
+    fetch(API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "register", userId, username: name, course })
+    }).catch(err => console.log(err));
+  }
 
-      checkProfile();
-      alert("Профиль успешно сохранен!");
-    }
-
+  checkProfile();
+  alert("Профиль успешно сохранен!");
+}
     function logoutProfile() {
       localStorage.removeItem("student_profile");
       checkProfile();
@@ -437,25 +436,59 @@
     }
 
     function sendOrder() {
-      const user = JSON.parse(localStorage.getItem("student_profile")) || {
-        userId: tg?.initDataUnsafe?.user?.id || "guest",
-        name: tg?.initDataUnsafe?.user?.username || "Не указан",
-        course: "Не указан"
-      };
+    function sendOrder() {
+  const user = JSON.parse(localStorage.getItem("student_profile")) || {
+    userId: tg?.initDataUnsafe?.user?.id || "guest",
+    name: tg?.initDataUnsafe?.user?.username || "Не указан",
+    course: "Не указан"
+  };
 
-      let total = 0, itemsList = [];
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          itemsList.push(`${p.name} (x${cart[id]})`);
-        }
-      }
+  let total = 0, itemsList = [];
+  for (let id in cart) {
+    const p = products.find(i => i.id == id);
+    if (p) {
+      total += p.price * cart[id];
+      itemsList.push(`${p.name} (x${cart[id]})`);
+    }
+  }
 
-      const comment = document.getElementById("order-comment").value;
-      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-      const itemsString = itemsList.join(", ") + (comment ? ` [Инфо: ${comment}]` : "");
+  const comment = document.getElementById("order-comment").value;
+  const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+  const itemsString = itemsList.join(", ") + (comment ? ` [Инфо: ${comment}]` : "");
 
+  // Локальное сохранение
+  const localOrders = JSON.parse(localStorage.getItem("student_orders") || "[]");
+  localOrders.unshift({
+    id: orderId,
+    items: itemsString,
+    total: total,
+    date: new Date().toLocaleDateString('ru-RU')
+  });
+  localStorage.setItem("student_orders", JSON.stringify(localOrders));
+
+  // Надежная отправка в Google Таблицу
+  if (API_URL && API_URL.startsWith("http")) {
+    fetch(API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "order",
+        userId: user.userId,
+        username: user.name,
+        course: user.course,
+        items: itemsString,
+        totalPrice: total
+      })
+    }).catch(err => console.log(err));
+  }
+
+  cart = {};
+  closeCheckout();
+  renderCatalog();
+  checkProfile();
+  alert(`Заказ ${orderId} оформлен!`);
+    }
       // 1. Сохранение в локальную историю студента
       const localOrders = JSON.parse(localStorage.getItem("student_orders") || "[]");
       localOrders.unshift({
