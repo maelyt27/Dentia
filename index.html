@@ -434,9 +434,15 @@
         <input type="number" id="adm-price" placeholder="4900">
       </div>
       <div class="form-group">
-        <label>Имя файла картинки или ссылка</label>
-        <input type="text" id="adm-img" placeholder="INVOKA-9b0b51d7-51c0-4762-ab84-2d23ca4aa0e9-res-0.png">
-      </div>
+  <label>Фотография из галереи устройства</label>
+  <input type="file" id="adm-file" accept="image/*" onchange="handleImageUpload(event)" style="background:rgba(0,0,0,0.25); padding:8px; border-radius:10px; width:100%; color:#fff; border:1px solid var(--card-border);">
+  <input type="hidden" id="adm-img">
+  <div id="adm-img-preview" style="margin-top:10px; display:none; align-items:center; gap:10px;">
+    <img id="adm-preview-tag" src="" style="width:70px; height:70px; object-fit:cover; border-radius:10px; border:1px solid var(--accent);">
+    <span style="font-size:12px; color:var(--accent);">✓ Фото загружено</span>
+  </div>
+</div>
+
       <div class="form-group">
         <label>Или смайлик (если нет картинки)</label>
         <input type="text" id="adm-icon" placeholder="🩺">
