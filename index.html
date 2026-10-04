@@ -77,17 +77,7 @@
       font-size: 18px !important;
     }
 
-    /* 4. Скрытие неактивных разделов */
-    .page-section {
-      display: none !important;
-      padding: 16px;
-    }
-    .page-section.active {
-      display: block !important;
-    }
-    #page-catalog.page-section.active {
-      padding: 0 !important;
-    }
+
     
         /* Обязательное скрытие неактивных вкладок */
     .page-section {
@@ -826,7 +816,7 @@
       fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`).catch(e => console.log(e));
     }
 
-     function handleAuthSubmit() {
+    
          async function handleAuthSubmit() {
       const usernameInput = document.getElementById('auth-username').value.trim();
       const passwordInput = document.getElementById('auth-password').value.trim();
