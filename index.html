@@ -82,7 +82,6 @@
       border: 1px solid var(--card-border); margin-bottom: 14px;
     }
 
-    /* Авторизация: переключатель Вход / Регистрация */
     .auth-toggle {
       display: flex; background: rgba(0,0,0,0.25); border-radius: 10px; padding: 4px; margin-bottom: 16px;
     }
@@ -198,7 +197,7 @@
     </div>
 
     <div class="box">
-      <h4 style="margin:0 0 10px 0;">📦 Актуальные заказы</h4>
+      <h4 style="margin:0 0 10px 0;">📦 Мои активные заказы</h4>
       <div id="orders-history" style="font-size:13px; color:var(--hint);">У вас пока нет активных заказов.</div>
     </div>
   </div>
@@ -232,7 +231,7 @@
         <label>Комментарий / Адрес доставки (СДЭК или университет)</label>
         <input type="text" id="order-comment" placeholder="Город, клиника/ВУЗ или пункт СДЭК">
       </div>
-      <button class="btn-buy" style="padding:14px; font-size:15px;" onclick="sendOrder()">Подтвердить заказ</button>
+      <button class="btn-buy" style="padding:14px; font-size:15px;" id="order-submit-btn" onclick="sendOrder()">Подтвердить заказ</button>
       <button onclick="closeCheckout()" style="width:100%; background:none; border:none; color:var(--hint); padding:10px; margin-top:6px;">Закрыть</button>
     </div>
   </div>
@@ -253,6 +252,7 @@
   <script>
     // ВСТАВЬ СВОИ ДАННЫЕ СЮДА:
     const JSONBIN_ID = "6ac19301ac6210605a110015";
+    const JSONBIN_API_KEY = "$2a$10$G49640U.KQQHqLZ0k7vfc.fw.pnQMw3JtaDJ4jgJJi0WmhEOYNNyW"; // Скопируй из вкладки API Keys на jsonbin.io
     const BOT_TOKEN = "8806561978:AAGrGi66DRF4-35ZHs76t_RrlViUmnoaiS0";
     const ADMIN_CHAT_ID = "8753317016";
 
@@ -261,7 +261,6 @@
 
     let authMode = 'login'; // 'login' или 'reg'
 
-    // Функция переключения Вход / Регистрация
     function setAuthMode(mode) {
       authMode = mode;
       document.getElementById('btn-mode-login').classList.toggle('active', mode === 'login');
@@ -270,11 +269,15 @@
       document.getElementById('auth-submit-btn').innerText = (mode === 'reg') ? 'Зарегистрироваться' : 'Войти в аккаунт';
     }
 
-    // Загрузка всех пользователей из облака JSONBin
+    // Загрузка всех пользователей из облака с заголовком ключа
     async function fetchUsersFromCloud() {
       if (!JSONBIN_ID || JSONBIN_ID.includes("BIN_ID")) return [];
       try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`);
+        const headers = { "Content-Type": "application/json" };
+        if (JSONBIN_API_KEY && !JSONBIN_API_KEY.includes("MASTER_KEY")) {
+          headers["X-Master-Key"] = JSONBIN_API_KEY;
+        }
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, { headers });
         const json = await res.json();
         return Array.isArray(json.record) ? json.record : [];
       } catch (e) {
@@ -285,10 +288,15 @@
 
     // Сохранение обновленного списка пользователей в облако
     async function saveUsersToCloud(users) {
+      if (!JSONBIN_ID || JSONBIN_ID.includes("BIN_ID")) return;
       try {
+        const headers = { "Content-Type": "application/json" };
+        if (JSONBIN_API_KEY && !JSONBIN_API_KEY.includes("MASTER_KEY")) {
+          headers["X-Master-Key"] = JSONBIN_API_KEY;
+        }
         await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: headers,
           body: JSON.stringify(users)
         });
       } catch (e) {
@@ -296,14 +304,14 @@
       }
     }
 
-    // Мгновенное оповещение в Telegram тебе
+    // Отправка карточки заказа или регистрации в Telegram администратору
     function sendTgAlert(text) {
       if (!BOT_TOKEN || BOT_TOKEN.includes("ТОКЕН")) return;
       const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`;
       fetch(url).catch(e => console.log(e));
     }
 
-    // Обработка отправки формы Входа / Регистрации
+    // Обработка авторизации и регистрации
     async function handleAuthSubmit() {
       const usernameInput = document.getElementById('auth-username').value.trim();
       const passwordInput = document.getElementById('auth-password').value.trim();
@@ -315,15 +323,15 @@
       }
 
       const submitBtn = document.getElementById('auth-submit-btn');
-      submitBtn.innerText = "Проверка...";
+      submitBtn.innerText = "Связь с базой...";
       submitBtn.disabled = true;
 
       const users = await fetchUsersFromCloud();
       const cleanUsername = usernameInput.replace(/^@/, '').toLowerCase();
 
       if (authMode === 'reg') {
-        // --- ЛОГИКА РЕГИСТРАЦИИ ---
-        const userExists = users.some(u => u.username.toLowerCase() === cleanUsername);
+        // Проверка на дубликат ника
+        const userExists = users.some(u => u.cleanUsername === cleanUsername);
         if (userExists) {
           alert("❌ Пользователь с таким никнеймом уже зарегистрирован! Придумайте другой или выполните вход.");
           submitBtn.innerText = "Зарегистрироваться";
@@ -336,21 +344,19 @@
           cleanUsername: cleanUsername,
           password: passwordInput,
           course: courseInput,
-          registeredAt: new Date().toLocaleDateString('ru-RU')
+          registeredAt: new Date().toLocaleDateString('ru-RU'),
+          orders: [] // Личные заказы этого пользователя
         };
 
         users.push(newUser);
         await saveUsersToCloud(users);
 
-        // Сохраняем активный профиль в локальную сессию
         localStorage.setItem("student_profile", JSON.stringify(newUser));
 
-        // Оповещение администратору
         sendTgAlert(`👤 <b>Новая регистрация студента!</b>\n\n• <b>Ник:</b> @${cleanUsername}\n• <b>Курс:</b> ${courseInput}\n• <b>Пароль:</b> <code>${passwordInput}</code>`);
-
         alert("✅ Регистрация прошла успешно! Добро пожаловать.");
       } else {
-        // --- ЛОГИКА ВХОДА ---
+        // Вход
         const user = users.find(u => u.cleanUsername === cleanUsername);
 
         if (!user) {
@@ -365,6 +371,10 @@
           submitBtn.innerText = "Войти в аккаунт";
           submitBtn.disabled = false;
           return;
+        }
+
+        if (!Array.isArray(user.orders)) {
+          user.orders = [];
         }
 
         localStorage.setItem("student_profile", JSON.stringify(user));
@@ -382,17 +392,35 @@
         document.getElementById("profile-card").style.display = "block";
         document.getElementById("prof-display-name").innerText = user.username.startsWith('@') ? user.username : `@${user.username}`;
         document.getElementById("prof-display-course").innerText = `${user.course} курс`;
+        renderOrdersHistory(user.orders || []);
       } else {
         document.getElementById("auth-box").style.display = "block";
         document.getElementById("profile-card").style.display = "none";
+        renderOrdersHistory([]);
         setAuthMode('login');
       }
-      renderOrdersHistory();
     }
 
     function logoutProfile() {
       localStorage.removeItem("student_profile");
       checkProfile();
+    }
+
+    // Отображение только личных заказов активного пользователя
+    function renderOrdersHistory(orders) {
+      const container = document.getElementById("orders-history");
+      if (!container) return;
+      if (!orders || orders.length === 0) {
+        container.innerHTML = "У вас пока нет активных заказов.";
+        return;
+      }
+      container.innerHTML = orders.map(o => `
+        <div style="border-bottom:1px solid var(--card-border); padding:8px 0;">
+          <div style="font-weight:700; color:var(--accent);">${o.id} • ${o.date}</div>
+          <div style="margin:3px 0;">${o.items}</div>
+          <div style="font-weight:600;">Сумма: ${o.total.toLocaleString('ru-RU')} ₽</div>
+        </div>
+      `).join("");
     }
 
     const products = [
@@ -435,149 +463,4 @@
           <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
           ${count === 0 
             ? `<button class="btn-buy" onclick="updateCart(${p.id}, 1)">В корзину</button>`
-            : `<div class="counter">
-                <button onclick="updateCart(${p.id}, -1)">−</button>
-                <span>${count}</span>
-                <button onclick="updateCart(${p.id}, 1)">+</button>
-               </div>`
-          }
-        `;
-        container.appendChild(card);
-      });
-
-      updateCartBar();
-    }
-
-    function switchMainTab(tab, el) {
-      currentTab = tab;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-      const sub = document.getElementById('kits-subtabs');
-      if (sub) sub.style.display = (tab === 'kits') ? 'flex' : 'none';
-      renderCatalog();
-    }
-
-    function switchSubTab(sub, el) {
-      currentSub = sub;
-      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-      renderCatalog();
-    }
-
-    function updateCart(id, delta) {
-      cart[id] = (cart[id] || 0) + delta;
-      if (cart[id] <= 0) delete cart[id];
-      renderCatalog();
-    }
-
-    function updateCartBar() {
-      let total = 0, count = 0;
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          count += cart[id];
-        }
-      }
-            const bar = document.getElementById("cart-float");
-      if (!bar) return;
-      if (count > 0) {
-        bar.style.display = "flex";
-        document.getElementById("cart-count").innerText = `${count} шт.`;
-        document.getElementById("cart-total").innerText = `Оформить ${total.toLocaleString('ru-RU')} ₽ →`;
-      } else {
-        bar.style.display = "none";
-      }
-    }
-
-    function switchNav(page, el) {
-      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-      document.getElementById(`page-${page}`).classList.add('active');
-      el.classList.add('active');
-    }
-
-    function renderOrdersHistory() {
-      const orders = JSON.parse(localStorage.getItem("student_orders") || "[]");
-      const container = document.getElementById("orders-history");
-      if (!container) return;
-      if (orders.length === 0) {
-        container.innerHTML = "У вас пока нет активных заказов.";
-        return;
-      }
-      container.innerHTML = orders.map(o => `
-        <div style="border-bottom:1px solid var(--card-border); padding:8px 0;">
-          <div style="font-weight:700; color:var(--accent);">${o.id} • ${o.date}</div>
-          <div style="margin:3px 0;">${o.items}</div>
-          <div style="font-weight:600;">Сумма: ${o.total} ₽</div>
-        </div>
-      `).join("");
-    }
-
-    function openCheckout() {
-      let total = 0, summary = [];
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          summary.push(`${p.name} × ${cart[id]}`);
-        }
-      }
-      document.getElementById("order-summary").innerHTML = `<b>Состав:</b><br>${summary.join("<br>")}<br><br><b>Итого:</b> ${total} ₽`;
-      document.getElementById("modal-order").classList.add("active");
-    }
-
-    function closeCheckout() {
-      document.getElementById("modal-order").classList.remove("active");
-    }
-
-    function sendOrder() {
-      const user = JSON.parse(localStorage.getItem("student_profile")) || {
-        username: tg?.initDataUnsafe?.user?.username || "Не авторизован",
-        course: "—"
-      };
-
-      let total = 0, itemsList = [];
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          itemsList.push(`${p.name} (x${cart[id]})`);
-        }
-      }
-
-      const comment = document.getElementById("order-comment").value.trim();
-      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-      const itemsString = itemsList.join(", ");
-      const tgUser = tg?.initDataUnsafe?.user;
-      const userLink = tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id || 'не определен'}`;
-
-      const localOrders = JSON.parse(localStorage.getItem("student_orders") || "[]");
-      localOrders.unshift({
-        id: orderId,
-        items: itemsString + (comment ? ` [${comment}]` : ""),
-        total: total,
-        date: new Date().toLocaleDateString('ru-RU')
-      });
-      localStorage.setItem("student_orders", JSON.stringify(localOrders));
-
-      const msg = `🛍️ <b>НОВЫЙ ЗАКАЗ: ${orderId}</b>\n\n` +
-                  `👤 <b>Студент:</b> ${user.username} (${user.course} курс)\n` +
-                  `📱 <b>Контакт:</b> ${userLink}\n` +
-                  `📦 <b>Состав:</b>\n• ${itemsList.join("\n• ")}\n\n` +
-                  `💰 <b>Сумма:</b> ${total.toLocaleString('ru-RU')} ₽\n` +
-                  (comment ? `📍 <b>Инфо:</b> ${comment}` : "");
-      sendTgAlert(msg);
-
-      cart = {};
-      closeCheckout();
-      renderCatalog();
-      checkProfile();
-      alert(`Заказ ${orderId} успешно оформлен! Менеджер свяжется с вами.`);
-    }
-
-    checkProfile();
-    renderCatalog();
-  </script>
-</body>
-</html>
+            : `<div class="c
