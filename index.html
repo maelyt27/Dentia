@@ -724,7 +724,7 @@
     let currentSub = 'therapy';
     let cart = {};
 
-        function renderCatalog() {
+            function renderCatalog() {
       const container = document.getElementById("catalog-grid");
       if (!container) return;
       container.innerHTML = "";
@@ -739,21 +739,21 @@
         const count = cart[p.id] || 0;
         const card = document.createElement("div");
         card.className = "card";
-        card.innerHTML = `
-          <div class="card-img-box">
 
-      // Клик открывает окно в стиле WB/Ozon (если кликнули не на плюс/минус):
+        // Обработчик клика для открытия окна товара WB/Ozon
         card.onclick = (e) => {
           if (e.target.tagName === 'BUTTON' || e.target.closest('.counter')) return;
           openProductDetail(p.id);
         };
-        
-  ${p.img 
-    ? `<img src="${p.img}" alt="${p.name}" class="card-product-img">` 
-    : `<span style="font-size:36px;">${p.icon || '📦'}</span>`
-  }
-</div>
 
+        // Внутрь innerHTML передаётся ТОЛЬКО чистая разметка
+        card.innerHTML = `
+          <div class="card-img-box">
+            ${p.img 
+              ? `<img src="${p.img}" alt="${p.name}" class="card-product-img">`
+              : `<span style="font-size:36px;">${p.icon || '📦'}</span>`
+            }
+          </div>
           <div class="card-title">${p.name}</div>
           <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
           ${count === 0 
@@ -765,6 +765,7 @@
                </div>`
           }
         `;
+
         container.appendChild(card);
       });
 
