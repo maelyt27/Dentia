@@ -187,15 +187,54 @@
     }
 
     
+    /* Сетка: на планшете делает карточки адекватного размера, а не гигантскими */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 200px));
+      gap: 14px;
+      padding: 16px;
+      justify-content: start;
+    }
+
+    .card {
+      background: rgba(22, 32, 61, 0.75);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Картинка: всегда квадратная, занимает весь верх карточки */
     .card img {
       width: 100% !important;
-      height: 180px !important;
-      object-fit: contain !important; /* Показывает ВСЮ картинку целиком без обрезки */
-      background: rgba(0, 0, 0, 0.25); /* Аккуратная подложка, если фото не совпадает по пропорциям */
+      aspect-ratio: 1 / 1 !important; /* Ровный аккуратный квадрат */
+      height: auto !important;
+      object-fit: cover !important; /* Заполняет всю карточку без черных полос */
       border-radius: 12px !important;
       display: block !important;
       margin-bottom: 8px !important;
     }
+
+    /* Название товара: четкий белый цвет, чтобы не сливалось с фоном */
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff !important;
+      margin: 4px 0 8px 0;
+      line-height: 1.3;
+      min-height: 34px;
+    }
+
+    .card-price {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
   
   </style>
 </head>
