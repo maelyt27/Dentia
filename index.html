@@ -250,7 +250,7 @@
   </div>
 
   <script>
-    // ВСТАВЬ СВОИ ДАННЫЕ СЮДА:
+    // НАСТРОЙКИ ПОДКЛЮЧЕНИЯ:
     const JSONBIN_ID = "6ac19301ac6210605a110015";
     const JSONBIN_API_KEY = "$2a$10$G49640U.KQQHqLZ0k7vfc.fw.pnQMw3JtaDJ4jgJJi0WmhEOYNNyW"; // Скопируй из вкладки API Keys на jsonbin.io
     const BOT_TOKEN = "8806561978:AAGrGi66DRF4-35ZHs76t_RrlViUmnoaiS0";
@@ -259,7 +259,7 @@
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    let authMode = 'login'; // 'login' или 'reg'
+    let authMode = 'login';
 
     function setAuthMode(mode) {
       authMode = mode;
@@ -269,7 +269,7 @@
       document.getElementById('auth-submit-btn').innerText = (mode === 'reg') ? 'Зарегистрироваться' : 'Войти в аккаунт';
     }
 
-    // Загрузка всех пользователей из облака с заголовком ключа
+    // Загрузка пользователей из облака JSONBin
     async function fetchUsersFromCloud() {
       if (!JSONBIN_ID || JSONBIN_ID.includes("BIN_ID")) return [];
       try {
@@ -279,39 +279,53 @@
         }
         const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, { headers });
         const json = await res.json();
+        if (!res.ok) {
+          alert("Ошибка чтения БД: " + (json.message || res.statusText));
+          return [];
+        }
         return Array.isArray(json.record) ? json.record : [];
       } catch (e) {
-        console.error("Ошибка чтения БД:", e);
+        alert("Сетевая ошибка чтения базы: " + e.message);
         return [];
       }
     }
 
-    // Сохранение обновленного списка пользователей в облако
+    // Сохранение пользователей в облако JSONBin (без скрытых копий версий)
     async function saveUsersToCloud(users) {
-      if (!JSONBIN_ID || JSONBIN_ID.includes("BIN_ID")) return;
+      if (!JSONBIN_ID || JSONBIN_ID.includes("BIN_ID")) return false;
       try {
-        const headers = { "Content-Type": "application/json" };
+        const headers = {
+          "Content-Type": "application/json",
+          "X-Bin-Versioning": "false"
+        };
         if (JSONBIN_API_KEY && !JSONBIN_API_KEY.includes("MASTER_KEY")) {
           headers["X-Master-Key"] = JSONBIN_API_KEY;
         }
-        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
           method: "PUT",
           headers: headers,
           body: JSON.stringify(users)
         });
+        const json = await res.json();
+        if (!res.ok) {
+          alert("Ошибка сохранения в БД: " + (json.message || res.statusText));
+          return false;
+        }
+        return true;
       } catch (e) {
-        console.error("Ошибка сохранения в БД:", e);
+        alert("Сетевая ошибка отправки: " + e.message);
+        return false;
       }
     }
 
-    // Отправка карточки заказа или регистрации в Telegram администратору
+    // Оповещения в Telegram бот
     function sendTgAlert(text) {
       if (!BOT_TOKEN || BOT_TOKEN.includes("ТОКЕН")) return;
       const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`;
       fetch(url).catch(e => console.log(e));
     }
 
-    // Обработка авторизации и регистрации
+    // Вход / Регистрация
     async function handleAuthSubmit() {
       const usernameInput = document.getElementById('auth-username').value.trim();
       const passwordInput = document.getElementById('auth-password').value.trim();
@@ -330,7 +344,7 @@
       const cleanUsername = usernameInput.replace(/^@/, '').toLowerCase();
 
       if (authMode === 'reg') {
-        // Проверка на дубликат ника
+        // Проверка на занятость ника
         const userExists = users.some(u => u.cleanUsername === cleanUsername);
         if (userExists) {
           alert("❌ Пользователь с таким никнеймом уже зарегистрирован! Придумайте другой или выполните вход.");
@@ -345,13 +359,19 @@
           password: passwordInput,
           course: courseInput,
           registeredAt: new Date().toLocaleDateString('ru-RU'),
-          orders: [] // Личные заказы этого пользователя
+          orders: []
         };
 
         users.push(newUser);
-        await saveUsersToCloud(users);
+        const isSaved = await saveUsersToCloud(users);
+        if (!isSaved) {
+          submitBtn.innerText = "Зарегистрироваться";
+          submitBtn.disabled = false;
+          return;
+        }
 
-        localStorage.setItem("student_profile", JSON.stringify(newUser));
+        // Сохраняем сессию только текущего пользователя
+        localStorage.setItem("active_student_user", JSON.stringify(newUser));
 
         sendTgAlert(`👤 <b>Новая регистрация студента!</b>\n\n• <b>Ник:</b> @${cleanUsername}\n• <b>Курс:</b> ${courseInput}\n• <b>Пароль:</b> <code>${passwordInput}</code>`);
         alert("✅ Регистрация прошла успешно! Добро пожаловать.");
@@ -377,7 +397,7 @@
           user.orders = [];
         }
 
-        localStorage.setItem("student_profile", JSON.stringify(user));
+        localStorage.setItem("active_student_user", JSON.stringify(user));
         alert(`✅ С возвращением, ${user.username}!`);
       }
 
@@ -385,8 +405,9 @@
       checkProfile();
     }
 
+    // Проверка статуса профиля и отображение данных
     function checkProfile() {
-      const user = JSON.parse(localStorage.getItem("student_profile"));
+      const user = JSON.parse(localStorage.getItem("active_student_user"));
       if (user) {
         document.getElementById("auth-box").style.display = "none";
         document.getElementById("profile-card").style.display = "block";
@@ -401,12 +422,16 @@
       }
     }
 
+    // Выход из профиля с полной очисткой данных на экране
     function logoutProfile() {
+      localStorage.removeItem("active_student_user");
+      // Удаляем возможные старые следы
       localStorage.removeItem("student_profile");
+      localStorage.removeItem("student_orders");
       checkProfile();
     }
 
-    // Отображение только личных заказов активного пользователя
+    // Отрисовка списка заказов конкретного пользователя
     function renderOrdersHistory(orders) {
       const container = document.getElementById("orders-history");
       if (!container) return;
@@ -443,24 +468,4 @@
     let cart = {};
 
     function renderCatalog() {
-      const container = document.getElementById("catalog-grid");
-      if (!container) return;
-      container.innerHTML = "";
-
-      const filtered = products.filter(p => {
-        if (p.tab !== currentTab) return false;
-        if (currentTab === 'kits' && p.sub !== currentSub) return false;
-        return true;
-      });
-
-      filtered.forEach(p => {
-        const count = cart[p.id] || 0;
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <div class="card-icon">${p.icon}</div>
-          <div class="card-title">${p.name}</div>
-          <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
-          ${count === 0 
-            ? `<button class="btn-buy" onclick="updateCart(${p.id}, 1)">В корзину</button>`
-            : `<div class="c
+      const container = document
