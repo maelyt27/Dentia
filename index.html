@@ -200,7 +200,7 @@
     /* 2. Скрытие плавающей корзины по умолчанию */
     .cart-float {
       position: fixed !important;
-      bottom: 65px !important;
+      bottom: calc(65px + env(safe-area-inset-bottom, 0px)) !important;
       left: 16px !important;
       right: 16px !important;
       background: linear-gradient(135deg, #38bdf8, #2563eb) !important;
