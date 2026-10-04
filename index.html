@@ -196,23 +196,29 @@
     .modal.active {
       display: flex !important;
     }
+/* Плавающая корзина: скрыта по умолчанию, видна при наличии класса active */
+.cart-float {
+  position: fixed !important;
+  bottom: calc(65px + env(safe-area-inset-bottom, 0px)) !important;
+  left: 16px !important;
+  right: 16px !important;
+  background: linear-gradient(135deg, #38bdf8, #2563eb) !important;
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5) !important;
+  color: #fff !important;
+  padding: 12px 18px !important;
+  border-radius: 14px !important;
+  display: none; /* БЕЗ !important */
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  z-index: 99 !important;
+}
 
-    /* 2. Скрытие плавающей корзины по умолчанию */
-    .cart-float {
-      position: fixed !important;
-      bottom: calc(65px + env(safe-area-inset-bottom, 0px)) !important;
-      left: 16px !important;
-      right: 16px !important;
-      background: linear-gradient(135deg, #38bdf8, #2563eb) !important;
-      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5) !important;
-      color: #fff !important;
-      padding: 12px 18px !important;
-      border-radius: 14px !important;
-      display: none !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      font-weight: 700 !important;
-      z-index: 99 !important;
+.cart-float.active {
+  display: flex !important; /* Показывается только когда есть класс active */
+}
+
     }
 
     /* 3. Горизонтальная нижняя панель навигации */
