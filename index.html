@@ -728,7 +728,8 @@
       fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`).catch(e => console.log(e));
     }
 
-    async function handleAuthSubmit() {
+     function handleAuthSubmit() {
+         async function handleAuthSubmit() {
       const usernameInput = document.getElementById('auth-username').value.trim();
       const passwordInput = document.getElementById('auth-password').value.trim();
       const courseInput = document.getElementById('auth-course').value;
@@ -761,22 +762,25 @@
           course: courseInput,
           registeredAt: new Date().toLocaleDateString('ru-RU'),
           orders: [],
-          isAdmin: (cleanUsername === "admin" || String(tg?.initDataUnsafe?.user?.id) === String(ADMIN_CHAT_ID))
+          isAdmin: (cleanUsername === "admin")
         };
 
         users.push(newUser);
         await saveUsersToCloud(users);
+
         localStorage.setItem("active_student_user", JSON.stringify(newUser));
         sendTgAlert(`👤 <b>Новая регистрация студента!</b>\n\n• <b>Ник:</b> @${cleanUsername}\n• <b>Курс:</b> ${courseInput}\n• <b>Пароль:</b> <code>${passwordInput}</code>`);
         alert("✅ Регистрация прошла успешно!");
       } else {
         const user = users.find(u => u.cleanUsername === cleanUsername);
+
         if (!user || user.password !== passwordInput) {
           alert("❌ Неверный логин или пароль!");
           submitBtn.innerText = "Войти в аккаунт";
           submitBtn.disabled = false;
           return;
         }
+
         if (!Array.isArray(user.orders)) user.orders = [];
         localStorage.setItem("active_student_user", JSON.stringify(user));
         alert(`✅ С возвращением, ${user.username}!`);
@@ -1056,13 +1060,25 @@
       document.getElementById("modal-product-detail").classList.remove("active");
     }
 
-    function checkAdminAccess() {
+        function checkAdminAccess() {
       const tgUserId = String(tg?.initDataUnsafe?.user?.id || "");
       const activeUser = JSON.parse(localStorage.getItem("active_student_user") || "{}");
-      if (tgUserId === String(ADMIN_CHAT_ID) || activeUser.isAdmin === true || activeUser.cleanUsername === "admin") {
+      const admBtn = document.getElementById("nav-item-admin");
+
+      // Доступ ТОЛЬКО если Telegram ID совпадает с твоим ADMIN_CHAT_ID (8753317016)
+      // или если ник строго равен "admin"
+      if ((tgUserId !== "" && tgUserId === String(ADMIN_CHAT_ID)) || activeUser.cleanUsername === "admin") {
         isAdminUser = true;
-        const btn = document.getElementById("nav-item-admin");
-        if (btn) btn.style.display = "flex";
+        if (admBtn) admBtn.style.display = "flex";
+      } else {
+        isAdminUser = false;
+        if (admBtn) admBtn.style.display = "none";
+        
+        // Если обычный пользователь пытается открыть страницу админа — выкидываем в каталог
+        const adminPage = document.getElementById("page-admin");
+        if (adminPage && adminPage.classList.contains("active")) {
+          switchNav('catalog', document.querySelector('.nav-item'));
+        }
       }
     }
 
