@@ -397,7 +397,74 @@
     </div>
   </div>
   
+  <!-- Вкладка: Админ-панель (видна только тебе) -->
+  <div id="page-admin" class="page-section">
+    <div class="brand">⚙️ Панель Администратора</div>
+    <div class="box">
+      <h4 style="margin: 0 0 12px 0;">➕ Добавить новый товар</h4>
+      <div class="form-group">
+        <label>Название товара</label>
+        <input type="text" id="adm-name" placeholder="Например: Терапевтический набор PRO">
+      </div>
+      <div class="form-group">
+        <label>Категория</label>
+        <select id="adm-tab" onchange="toggleAdmSub()">
+          <option value="kits">📦 Наборы</option>
+          <option value="instruments">🛠️ Инструментарий</option>
+          <option value="clothes">🥼 Спец.одежда</option>
+          <option value="courseworks">📑 Курсовые</option>
+          <option value="courses">🎓 Курсы</option>
+        </select>
+      </div>
+      <div class="form-group" id="adm-sub-group">
+        <label>Подкатегория набора</label>
+        <select id="adm-sub">
+          <option value="therapy">Терапия</option>
+          <option value="endo">Эндодонтия</option>
+          <option value="surgery">Хирургия</option>
+          <option value="ozpt">ОЗПТ</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Цена (в рублях)</label>
+        <input type="number" id="adm-price" placeholder="4900">
+      </div>
+      <div class="form-group">
+        <label>Имя файла картинки или ссылка</label>
+        <input type="text" id="adm-img" placeholder="Набор терапия.jpg или https://...">
+      </div>
+      <div class="form-group">
+        <label>Или смайлик (если нет картинки)</label>
+        <input type="text" id="adm-icon" placeholder="🩺">
+      </div>
+      <div class="form-group">
+        <label>Подробное описание (характеристики, комплектация)</label>
+        <textarea id="adm-desc" rows="4" placeholder="Комплектация набора, производитель, материал боров..."></textarea>
+      </div>
+      <button class="btn-buy" style="padding:14px; font-size:14px;" id="adm-save-btn" onclick="saveNewProduct()">Опубликовать товар</button>
+    </div>
+    <div class="box">
+      <h4 style="margin: 0 0 10px 0;">📋 Список товаров (<span id="adm-prod-count">0</span>)</h4>
+      <div id="adm-prod-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+  </div>
 
+  <!-- Модальное окно просмотра товара Ozon/WB -->
+  <div class="modal" id="modal-product-detail">
+    <div class="modal-content wb-card-modal">
+      <div id="pd-img-box"></div>
+      <div class="wb-badge">В наличии</div>
+      <h2 style="font-size:18px; margin:0 0 8px 0;" id="pd-title">Название</h2>
+      <div style="font-size:22px; font-weight:800; color:var(--accent); margin-bottom:14px;" id="pd-price">0 ₽</div>
+      <div style="background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; margin-bottom:16px;">
+        <h4 style="margin:0 0 6px 0; font-size:13px; color:var(--hint);">Описание и комплектация:</h4>
+        <div style="font-size:13px; line-height:1.5; color:#cbd5e1; white-space:pre-line;" id="pd-desc"></div>
+      </div>
+      <div id="pd-action-btn-box"></div>
+      <button onclick="closeProductDetail()" style="width:100%; background:none; border:none; color:var(--hint); padding:12px; margin-top:6px; cursor:pointer;">Назад к покупкам</button>
+    </div>
+  </div>
+  
   <!-- Плавающая корзина -->
   <div class="cart-float" id="cart-float" onclick="openCheckout()">
     <span id="cart-count">0 шт.</span>
@@ -432,6 +499,10 @@
         <div class="nav-item" onclick="switchNav('snake', this)">
       <span>🐍</span><span>Змейка</span>
         </div>
+        <div class="nav-item" id="nav-item-admin" style="display:none;" onclick="switchNav('admin', this)">
+      <span>⚙️</span><span>Админ</span>
+        </div>
+    
     
   </div>
 
@@ -670,6 +741,13 @@
         card.className = "card";
         card.innerHTML = `
           <div class="card-img-box">
+
+      // Клик открывает окно в стиле WB/Ozon (если кликнули не на плюс/минус):
+        card.onclick = (e) => {
+          if (e.target.tagName === 'BUTTON' || e.target.closest('.counter')) return;
+          openProductDetail(p.id);
+        };
+        
   ${p.img 
     ? `<img src="${p.img}" alt="${p.name}" class="card-product-img">` 
     : `<span style="font-size:36px;">${p.icon || '📦'}</span>`
@@ -979,6 +1057,145 @@
 
       overlay.style.display = "flex";
     }
+
+
+        // --- ДЕТАЛЬНЫЙ ПРОСМОТР ТОВАРА WB/OZON ---
+    function openProductDetail(productId) {
+      const p = products.find(i => i.id == productId);
+      if (!p) return;
+
+      const imgBox = document.getElementById("pd-img-box");
+      if (p.img) {
+        imgBox.innerHTML = `<img src="${encodeURI(p.img)}" alt="${p.name}">`;
+      } else {
+        imgBox.innerHTML = `<div style="width:100%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; font-size:64px; background:rgba(0,0,0,0.3); border-radius:16px; margin-bottom:14px;">${p.icon || '📦'}</div>`;
+      }
+
+      document.getElementById("pd-title").innerText = p.name;
+      document.getElementById("pd-price").innerText = `${p.price.toLocaleString('ru-RU')} ₽`;
+      document.getElementById("pd-desc").innerText = p.desc || "Описание товара уточняется у куратора.";
+
+      const btnBox = document.getElementById("pd-action-btn-box");
+      const count = cart[p.id] || 0;
+      
+      btnBox.innerHTML = count === 0
+        ? `<button class="btn-buy" style="padding:14px; font-size:15px;" onclick="updateCart(${p.id}, 1); openProductDetail(${p.id});">Добавить в корзину</button>`
+        : `<div class="counter" style="padding:8px 12px; font-size:16px;">
+            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart(${p.id}, -1); openProductDetail(${p.id});">−</button>
+            <span style="font-size:16px;">В корзине: ${count} шт.</span>
+            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart(${p.id}, 1); openProductDetail(${p.id});">+</button>
+           </div>`;
+
+      document.getElementById("modal-product-detail").classList.add("active");
+    }
+
+    function closeProductDetail() {
+      document.getElementById("modal-product-detail").classList.remove("active");
+    }
+
+    // --- УПРАВЛЕНИЕ АДМИНКОЙ ---
+    let isAdminUser = false;
+
+    function checkAdminAccess() {
+      const tgUserId = String(tg?.initDataUnsafe?.user?.id || "");
+      const activeUser = JSON.parse(localStorage.getItem("active_student_user") || "{}");
+      if (tgUserId === String(ADMIN_CHAT_ID) || activeUser.isAdmin === true || activeUser.cleanUsername === "admin") {
+        isAdminUser = true;
+        const btn = document.getElementById("nav-item-admin");
+        if (btn) btn.style.display = "flex";
+      }
+    }
+
+    function toggleAdmSub() {
+      const tab = document.getElementById("adm-tab").value;
+      const subGroup = document.getElementById("adm-sub-group");
+      if (subGroup) subGroup.style.display = (tab === 'kits') ? 'block' : 'none';
+    }
+
+    async function saveNewProduct() {
+      if (!isAdminUser) {
+        alert("У вас нет прав администратора!");
+        return;
+      }
+
+      const name = document.getElementById("adm-name").value.trim();
+      const tab = document.getElementById("adm-tab").value;
+      const sub = document.getElementById("adm-sub").value;
+      const price = parseInt(document.getElementById("adm-price").value, 10);
+      const img = document.getElementById("adm-img").value.trim();
+      const icon = document.getElementById("adm-icon").value.trim();
+      const desc = document.getElementById("adm-desc").value.trim();
+
+      if (!name || isNaN(price) || price <= 0) {
+        alert("Укажите корректное название и цену товара!");
+        return;
+      }
+
+      const btn = document.getElementById("adm-save-btn");
+      btn.innerText = "Сохранение...";
+      btn.disabled = true;
+
+      const newProd = {
+        id: Date.now(),
+        tab: tab,
+        sub: (tab === 'kits') ? sub : undefined,
+        name: name,
+        price: price,
+        img: img || undefined,
+        icon: (!img && icon) ? icon : (img ? undefined : '📦'),
+        desc: desc || "Описание скоро появится."
+      };
+
+      // Добавляем в локальный каталог и сохраняем
+      products.unshift(newProd);
+      localStorage.setItem("custom_dent_products", JSON.stringify(products));
+
+      alert("✅ Товар успешно добавлен!");
+      document.getElementById("adm-name").value = "";
+      document.getElementById("adm-price").value = "";
+      document.getElementById("adm-img").value = "";
+      document.getElementById("adm-icon").value = "";
+      document.getElementById("adm-desc").value = "";
+
+      btn.innerText = "Опубликовать товар";
+      btn.disabled = false;
+
+      renderCatalog();
+      renderAdminProducts();
+    }
+
+    function deleteProduct(id) {
+      if (!confirm("Удалить этот товар из магазина?")) return;
+      products = products.filter(p => p.id != id);
+      localStorage.setItem("custom_dent_products", JSON.stringify(products));
+      renderCatalog();
+      renderAdminProducts();
+    }
+
+    function renderAdminProducts() {
+      const container = document.getElementById("adm-prod-list");
+      const countEl = document.getElementById("adm-prod-count");
+      if (!container) return;
+      countEl.innerText = products.length;
+
+      container.innerHTML = products.map(p => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
+          <div>
+            <div style="font-weight:700; font-size:13px; color:#fff;">${p.name}</div>
+            <div style="font-size:11px; color:var(--hint);">${p.price.toLocaleString('ru-RU')} ₽ • ${p.tab}</div>
+          </div>
+          <button onclick="deleteProduct(${p.id})" style="background:var(--danger); border:none; color:#fff; border-radius:6px; padding:6px 10px; font-size:11px; cursor:pointer;">Удалить</button>
+        </div>
+      `).join("");
+    }
+
+    // Инициализация кастомных товаров при запуске
+    const savedCustomProds = localStorage.getItem("custom_dent_products");
+    if (savedCustomProds) {
+      try { products = JSON.parse(savedCustomProds); } catch(e){}
+    }
+    checkAdminAccess();
+    renderAdminProducts();
     
   </script>
 </body>
