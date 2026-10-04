@@ -6,6 +6,95 @@
   <title>Dental Student Store</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+
+        /* Красивая стеклянная форма и карточки */
+    .box {
+      background: rgba(22, 32, 61, 0.7) !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 16px !important;
+      padding: 16px !important;
+      margin-bottom: 14px !important;
+    }
+
+    /* Переключатель Вход / Регистрация */
+    .auth-toggle {
+      display: flex !important;
+      background: rgba(0, 0, 0, 0.35) !important;
+      border-radius: 10px !important;
+      padding: 4px !important;
+      margin-bottom: 16px !important;
+    }
+
+    .auth-tab {
+      flex: 1 !important;
+      text-align: center !important;
+      padding: 10px !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      color: var(--hint) !important;
+      transition: 0.2s !important;
+    }
+
+    .auth-tab.active {
+      background: var(--accent) !important;
+      color: var(--accent-text) !important;
+    }
+
+    /* Аккуратные поля ввода с подсказками сверху */
+    .form-group {
+      margin-bottom: 14px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 6px !important;
+    }
+
+    .form-group label {
+      display: block !important;
+      font-size: 12px !important;
+      color: var(--hint) !important;
+      font-weight: 600 !important;
+    }
+
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+      width: 100% !important;
+      box-sizing: border-box !important;
+      padding: 12px 14px !important;
+      border-radius: 10px !important;
+      background: rgba(0, 0, 0, 0.25) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #fff !important;
+      font-size: 14px !important;
+      outline: none !important;
+      font-family: inherit !important;
+    }
+
+    .form-group input:focus, 
+    .form-group select:focus {
+      border-color: var(--accent) !important;
+    }
+
+    /* Неоновая синяя кнопка */
+    .btn-buy {
+      display: block !important;
+      width: 100% !important;
+      background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35) !important;
+      border-radius: 10px !important;
+      border: none !important;
+      padding: 12px !important;
+      font-weight: 700 !important;
+      font-size: 13px !important;
+      cursor: pointer !important;
+      text-align: center !important;
+    }
+    
         /* 1. Скрытие всех модальных окон (пока они не вызваны) */
     .modal {
       position: fixed !important;
@@ -817,7 +906,7 @@
     }
 
     
-         async function handleAuthSubmit() {
+             async function handleAuthSubmit() {
       const usernameInput = document.getElementById('auth-username').value.trim();
       const passwordInput = document.getElementById('auth-password').value.trim();
       const courseInput = document.getElementById('auth-course').value;
@@ -878,6 +967,31 @@
       checkProfile();
       checkAdminAccess();
     }
+
+    function checkProfile() {
+      const user = JSON.parse(localStorage.getItem("active_student_user"));
+      if (user) {
+        document.getElementById("auth-box").style.display = "none";
+        document.getElementById("profile-card").style.display = "block";
+        document.getElementById("prof-display-name").innerText = user.username.startsWith('@') ? user.username : `@${user.username}`;
+        document.getElementById("prof-display-course").innerText = `${user.course} курс`;
+        renderOrdersHistory(user.orders || []);
+      } else {
+        document.getElementById("auth-box").style.display = "block";
+        document.getElementById("profile-card").style.display = "none";
+        renderOrdersHistory([]);
+        setAuthMode('login');
+      }
+    }
+
+    function logoutProfile() {
+      localStorage.removeItem("active_student_user");
+      isAdminUser = false;
+      const admBtn = document.getElementById("nav-item-admin");
+      if (admBtn) admBtn.style.display = "none";
+      checkProfile();
+    }
+
 
     function checkProfile() {
       const user = JSON.parse(localStorage.getItem("active_student_user"));
