@@ -197,33 +197,6 @@
       display: flex !important;
     }
 
-
-        /* Исправление отображения модального окна товара */
-    #pd-img-box {
-      width: 100%;
-      max-height: 260px;
-      height: 32vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.35);
-      border-radius: 16px;
-      margin-bottom: 14px;
-      overflow: hidden;
-      border: 1px solid var(--card-border);
-    }
-
-    .wb-card-modal img {
-      width: 100% !important;
-      height: 100% !important;
-      max-height: 260px !important;
-      object-fit: contain !important;
-      border-radius: 14px;
-      display: block;
-      margin: 0 auto;
-    }
-    
-
     /* 2. Скрытие плавающей корзины по умолчанию */
     .cart-float {
       position: fixed !important;
@@ -410,43 +383,8 @@
       font-weight: 800;
       color: var(--accent);
       margin-bottom: 10px;
-    }grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); /* Ровно 2 колонки, как на WB и Ozon */
-      gap: 10px;
-      padding: 12px;
     }
 
-
-    .card, .box {
-      background: rgba(22, 32, 61, 0.7) !important;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      border-radius: 18px;
-    }
-
-      .card {
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      cursor: pointer;
-      border-radius: 14px;
-      }
-
-    .card img, .card-product-img {
-      width: 100% !important;
-      aspect-ratio: 1 / 1 !important;
-      object-fit: cover !important;
-      border-radius: 12px !important;
-      display: block !important;
-      margin-bottom: 8px !important;
-    }
-
-.card-img-box {
-      width: 100%;
     /* 1. Сетка маркетплейса в 2 колонки */
     #catalog-grid, .grid {
       display: grid !important;
@@ -553,7 +491,7 @@
       cursor: pointer;
     }
 
-    .    .page-section { 
+    .page-section { 
       display: none !important; 
       padding: 16px; 
     }
@@ -762,7 +700,6 @@
       <div id="orders-history" style="font-size:13px; color:var(--hint);">У вас пока нет активных заказов.</div>
     </div>
   </div>
-
   <!-- Вкладка: Поддержка -->
   <div id="page-support" class="page-section">
     <div class="brand">💬 Отдел поддержки</div>
@@ -776,7 +713,6 @@
       </a>
     </div>    
   </div>
-
   <!-- Вкладка: Стоматологическая Змейка -->
   <div id="page-snake" class="page-section">
     <div class="brand">🦷 Dental Snake</div>
@@ -786,7 +722,6 @@
         <span style="color: var(--accent);">Счёт: <span id="snake-score">0</span> 🦷</span>
         <span style="color: var(--hint); font-size: 13px;">Рекорд: <span id="snake-best">0</span></span>
       </div>
-
       <div style="position: relative; width: 300px; height: 300px; margin: 0 auto; background: rgba(0,0,0,0.35); border: 2px solid rgba(56, 189, 248, 0.3); border-radius: 14px; overflow: hidden;">
         <canvas id="snake-canvas" width="300" height="300" style="display: block;"></canvas>
         
@@ -803,7 +738,6 @@
           <button class="btn-buy" style="padding: 10px 24px; font-size: 14px; width: auto;" onclick="startSnakeGame()">Играть</button>
         </div>
       </div>
-
       <div style="margin-top: 14px; display: inline-grid; grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(2, 46px); gap: 8px; justify-content: center;">
         <div></div>
         <button class="btn-buy" style="padding:0; font-size: 18px;" onclick="changeSnakeDir('UP')">▲</button>
@@ -812,7 +746,6 @@
         <button class="btn-buy" style="padding:0; font-size: 18px;" onclick="changeSnakeDir('DOWN')">▼</button>
         <button class="btn-buy" style="padding:0; font-size: 18px;" onclick="changeSnakeDir('RIGHT')">▶</button>
       </div>
-
     </div>
   </div>
   
@@ -857,7 +790,6 @@
     <span style="font-size:12px; color:var(--accent);">✓ Фото загружено</span>
   </div>
 </div>
-
       <div class="form-group">
         <label>Или смайлик (если нет картинки)</label>
         <input type="text" id="adm-icon" placeholder="🩺">
@@ -873,7 +805,6 @@
       <div id="adm-prod-list" style="display:flex; flex-direction:column; gap:8px;"></div>
     </div>
   </div>
-
   <!-- Модальное окно просмотра товара Ozon/WB -->
   <div class="modal" id="modal-product-detail">
     <div class="modal-content wb-card-modal">
@@ -889,13 +820,11 @@
       <button onclick="closeProductDetail()" style="width:100%; background:none; border:none; color:var(--hint); padding:12px; margin-top:6px; cursor:pointer;">Назад к покупкам</button>
     </div>
   </div>
-  
-  <!-- Плавающая корзина -->
+   <!-- Плавающая корзина -->
   <div class="cart-float" id="cart-float" onclick="openCheckout()">
     <span id="cart-count">0 шт.</span>
     <span id="cart-total">Оформить 0 ₽ →</span>
   </div>
-
   <!-- Окно оформления заказа -->
   <div class="modal" id="modal-order">
     <div class="modal-content">
@@ -909,7 +838,6 @@
       <button onclick="closeCheckout()" style="width:100%; background:none; border:none; color:var(--hint); padding:10px; margin-top:6px; cursor:pointer;">Закрыть</button>
     </div>
   </div>
-
   <!-- Нижняя навигация -->
   <div class="navbar">
     <div class="nav-item active" onclick="switchNav('catalog', this)">
@@ -935,16 +863,16 @@
         tg.HapticFeedback.impactOccurred('medium');
       }
     }
-
       
     const JSONBIN_ID = "6ac19301ac6210605a110015";
     const JSONBIN_API_KEY = "$2a$10$G49640U.KQQHqLZ0k7vfc.fw.pnQMw3JtaDJ4jgJJi0WmhEOYNNyW";
     const BOT_TOKEN = "8806561978:AAGrGi66DRF4-35ZHs76t_RrlViUmnoaiS0";
     const ADMIN_CHAT_ID = "8753317016";
-
         const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
-
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
     let authMode = 'login';
     let isAdminUser = false;
 
@@ -977,28 +905,25 @@
     }
 
     async function getFullCloudData() {
-      if (!JSONBIN_ID) return { users: [], products: defaultProducts };
+      if (!JSONBIN_ID) return null;
       try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
           headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_API_KEY }
         });
+        if (!res.ok) return null;
         const json = await res.json();
         let record = json.record;
-        if (Array.isArray(record)) {
-          record = { users: record, products: defaultProducts };
-          saveFullCloudData(record);
-        }
-        if (!record.products || !record.products.length) {
-          record.products = defaultProducts;
-          saveFullCloudData(record);
-        }
+        if (Array.isArray(record)) record = { users: record, products: defaultProducts };
+        if (!record || typeof record !== 'object') return null;
+        if (!Array.isArray(record.users)) record.users = [];
+        if (!Array.isArray(record.products)) record.products = defaultProducts;
         return record;
       } catch (e) {
-        return { users: [], products: defaultProducts };
+        return null;
       }
     }
 
-    async function saveFullCloudData(data) {
+  async function saveFullCloudData(data) {
       if (!JSONBIN_ID) return false;
       try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
@@ -1015,41 +940,40 @@
         return false;
       }
     }
-
     async function fetchUsersFromCloud() {
       const data = await getFullCloudData();
-      return Array.isArray(data.users) ? data.users : [];
+      return data ? data.users : null;
     }
-
     async function saveUsersToCloud(users) {
       const data = await getFullCloudData();
+      if (!data) return false;
       data.users = users;
       return await saveFullCloudData(data);
     }
-
     function sendTgAlert(text) {
       if (!BOT_TOKEN) return;
       fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`).catch(e => console.log(e));
     }
-
     
              async function handleAuthSubmit() {
       const usernameInput = document.getElementById('auth-username').value.trim();
       const passwordInput = document.getElementById('auth-password').value.trim();
       const courseInput = document.getElementById('auth-course').value;
-
       if (!usernameInput || !passwordInput) {
         alert("Заполните никнейм и пароль!");
         return;
       }
-
       const submitBtn = document.getElementById('auth-submit-btn');
       submitBtn.innerText = "Связь с базой...";
       submitBtn.disabled = true;
-
       const users = await fetchUsersFromCloud();
+      if (!users) {
+        alert("Нет связи с базой. Попробуйте позже.");
+        setAuthMode(authMode);
+        submitBtn.disabled = false;
+        return;
+      }
       const cleanUsername = usernameInput.replace(/^@/, '').toLowerCase();
-
       if (authMode === 'reg') {
         const userExists = users.some(u => u.cleanUsername === cleanUsername);
         if (userExists) {
@@ -1058,43 +982,41 @@
           submitBtn.disabled = false;
           return;
         }
-
         const newUser = {
           username: usernameInput,
           cleanUsername: cleanUsername,
           password: passwordInput,
           course: courseInput,
           registeredAt: new Date().toLocaleDateString('ru-RU'),
-          orders: [],
-          isAdmin: (cleanUsername === "admin")
+          orders: []
         };
-
         users.push(newUser);
-        await saveUsersToCloud(users);
-
+        if (!(await saveUsersToCloud(users))) {
+          alert("❌ Не удалось сохранить регистрацию. Попробуйте ещё раз.");
+          setAuthMode(authMode);
+          submitBtn.disabled = false;
+          return;
+        }
         localStorage.setItem("active_student_user", JSON.stringify(newUser));
-        sendTgAlert(`👤 <b>Новая регистрация студента!</b>\n\n• <b>Ник:</b> @${cleanUsername}\n• <b>Курс:</b> ${courseInput}\n• <b>Пароль:</b> <code>${passwordInput}</code>`);
+        sendTgAlert(`👤 <b>Новая регистрация студента!</b>\n\n• <b>Ник:</b> @${esc(cleanUsername)}\n• <b>Курс:</b> ${courseInput}\n• <b>Пароль:</b> <code>${esc(passwordInput)}</code>`);
         alert("✅ Регистрация прошла успешно!");
       } else {
         const user = users.find(u => u.cleanUsername === cleanUsername);
-
         if (!user || user.password !== passwordInput) {
           alert("❌ Неверный логин или пароль!");
           submitBtn.innerText = "Войти в аккаунт";
           submitBtn.disabled = false;
           return;
         }
-
         if (!Array.isArray(user.orders)) user.orders = [];
         localStorage.setItem("active_student_user", JSON.stringify(user));
         alert(`✅ С возвращением, ${user.username}!`);
       }
-
       submitBtn.disabled = false;
+      setAuthMode(authMode);
       checkProfile();
       checkAdminAccess();
     }
-
     function checkProfile() {
       const user = JSON.parse(localStorage.getItem("active_student_user"));
       if (user) {
@@ -1110,40 +1032,11 @@
         setAuthMode('login');
       }
     }
-
     function logoutProfile() {
       localStorage.removeItem("active_student_user");
-      isAdminUser = false;
-      const admBtn = document.getElementById("nav-item-admin");
-      if (admBtn) admBtn.style.display = "none";
+      checkAdminAccess();
       checkProfile();
     }
-
-
-    function checkProfile() {
-      const user = JSON.parse(localStorage.getItem("active_student_user"));
-      if (user) {
-        document.getElementById("auth-box").style.display = "none";
-        document.getElementById("profile-card").style.display = "block";
-        document.getElementById("prof-display-name").innerText = user.username.startsWith('@') ? user.username : `@${user.username}`;
-        document.getElementById("prof-display-course").innerText = `${user.course} курс`;
-        renderOrdersHistory(user.orders || []);
-      } else {
-        document.getElementById("auth-box").style.display = "block";
-        document.getElementById("profile-card").style.display = "none";
-        renderOrdersHistory([]);
-        setAuthMode('login');
-      }
-    }
-
-    function logoutProfile() {
-      localStorage.removeItem("active_student_user");
-      isAdminUser = false;
-      const admBtn = document.getElementById("nav-item-admin");
-      if (admBtn) admBtn.style.display = "none";
-      checkProfile();
-    }
-
     function renderOrdersHistory(orders) {
       const container = document.getElementById("orders-history");
       if (!container) return;
@@ -1153,13 +1046,12 @@
       }
       container.innerHTML = orders.map(o => `
         <div style="border-bottom:1px solid var(--card-border); padding:8px 0;">
-          <div style="font-weight:700; color:var(--accent);">${o.id} • ${o.date}</div>
-          <div style="margin:3px 0;">${o.items}</div>
-          <div style="font-weight:600;">Сумма: ${o.total.toLocaleString('ru-RU')} ₽</div>
+          <div style="font-weight:700; color:var(--accent);">${esc(o.id)} • ${esc(o.date)}</div>
+          <div style="margin:3px 0;">${esc(o.items)}</div>
+          <div style="font-weight:600;">Сумма: ${Number(o.total).toLocaleString('ru-RU')} ₽</div>
         </div>
       `).join("");
     }
-
     function renderCatalog() {
       const container = document.getElementById("catalog-grid");
       if (!container) return;
@@ -1189,38 +1081,36 @@
         card.innerHTML = `
           <div class="card-img-box">
             ${p.img 
-              ? `<img src="${encodeURI(p.img)}" alt="${p.name}" class="card-product-img">`
-              : `<span style="font-size:36px;">${p.icon || '📦'}</span>`
+              ? `<img src="${esc(encodeURI(p.img))}" alt="${esc(p.name)}" class="card-product-img">`
+              : `<span style="font-size:36px;">${esc(p.icon || '📦')}</span>`
             }
           </div>
-          <div class="card-title">${p.name}</div>
+          <div class="card-title">${esc(p.name)}</div>
           <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
           ${count === 0 
-            ? `<button class="btn-buy" onclick="event.stopPropagation(); updateCart('${p.id}', 1)">В корзину</button>`
+            ? `<button class="btn-buy" onclick="event.stopPropagation(); updateCart('${esc(p.id)}', 1)">В корзину</button>`
             : `<div class="counter" onclick="event.stopPropagation()">
-                <button onclick="updateCart('${p.id}', -1)">−</button>
+                <button onclick="updateCart('${esc(p.id)}', -1)">−</button>
                 <span>${count}</span>
-                <button onclick="updateCart('${p.id}', 1)">+</button>
+                <button onclick="updateCart('${esc(p.id)}', 1)">+</button>
                </div>`
           }
         `;
         container.appendChild(card);
       });
 
-      updateCartBar();
+  updateCartBar();
     }
-
     async function syncProductsFromCloud() {
       try {
         const data = await getFullCloudData();
-        if (data && Array.isArray(data.products) && data.products.length > 0) {
+        if (data && Array.isArray(data.products)) {
           products = data.products;
           renderCatalog();
           renderAdminProducts();
         }
       } catch (err) {}
     }
-
     function switchMainTab(tab, el) {
       currentTab = tab;
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1229,20 +1119,17 @@
       if (sub) sub.style.display = (tab === 'kits') ? 'flex' : 'none';
       renderCatalog();
     }
-
     function switchSubTab(sub, el) {
       currentSub = sub;
       document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
       renderCatalog();
     }
-
     function updateCart(id, delta) {
       cart[id] = (cart[id] || 0) + delta;
       if (cart[id] <= 0) delete cart[id];
       renderCatalog();
     }
-
     function updateCartBar() {
       let total = 0, count = 0;
       for (let id in cart) {
@@ -1262,8 +1149,8 @@
         bar.style.display = "none";
       }
     }
-
     function switchNav(page, el) {
+      if (page === 'admin' && !isAdminUser) return;
       document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
       const targetPage = document.getElementById(`page-${page}`);
@@ -1271,25 +1158,22 @@
       if (el) el.classList.add('active');
       if (page === 'snake') drawGame();
     }
-
     function openCheckout() {
       let total = 0, summary = [];
       for (let id in cart) {
         const p = products.find(i => String(i.id) === String(id));
         if (p) {
           total += p.price * cart[id];
-          summary.push(`${p.name} × ${cart[id]}`);
+          summary.push(`${esc(p.name)} × ${cart[id]}`);
         }
       }
       document.getElementById("order-summary").innerHTML = `<b>Состав:</b><br>${summary.join("<br>")}<br><br><b>Итого:</b> ${total.toLocaleString('ru-RU')} ₽`;
       document.getElementById("modal-order").classList.add("active");
       setTimeout(() => document.getElementById("order-comment")?.focus(), 100);
     }
-
     function closeCheckout() {
       document.getElementById("modal-order").classList.remove("active");
     }
-
     async function sendOrder() {
       const activeUser = JSON.parse(localStorage.getItem("active_student_user"));
       if (!activeUser) {
@@ -1298,7 +1182,6 @@
         switchNav('profile', document.querySelectorAll('.nav-item')[1]);
         return;
       }
-
       let total = 0, itemsList = [];
       for (let id in cart) {
         const p = products.find(i => String(i.id) === String(id));
@@ -1307,7 +1190,6 @@
           itemsList.push(`${p.name} (x${cart[id]})`);
         }
       }
-
       const orderBtn = document.getElementById('order-submit-btn');
       orderBtn.innerText = "Оформление...";
       orderBtn.disabled = true;
@@ -1324,7 +1206,7 @@
 
       try {
         const cloudData = await getFullCloudData();
-        const userIndex = (cloudData.users || []).findIndex(u => u.cleanUsername === activeUser.cleanUsername);
+        const userIndex = (cloudData?.users || []).findIndex(u => u.cleanUsername === activeUser.cleanUsername);
         if (userIndex !== -1) {
           if (!Array.isArray(cloudData.users[userIndex].orders)) cloudData.users[userIndex].orders = [];
           cloudData.users[userIndex].orders.unshift(newOrderData);
@@ -1340,11 +1222,11 @@
       const userLink = tgUser?.username ? `@${tgUser.username}` : `@${activeUser.cleanUsername}`;
 
       const msg = `🛍️ <b>НОВЫЙ ЗАКАЗ: ${orderId}</b>\n\n` +
-                  `👤 <b>Студент:</b> ${activeUser.username} (${activeUser.course} курс)\n` +
-                  `📱 <b>Контакт:</b> ${userLink}\n` +
-                  `📦 <b>Состав:</b>\n• ${itemsList.join("\n• ")}\n\n` +
+                  `👤 <b>Студент:</b> ${esc(activeUser.username)} (${esc(activeUser.course)} курс)\n` +
+                  `📱 <b>Контакт:</b> ${esc(userLink)}\n` +
+                  `📦 <b>Состав:</b>\n• ${itemsList.map(esc).join("\n• ")}\n\n` +
                   `💰 <b>Сумма:</b> ${total.toLocaleString('ru-RU')} ₽\n` +
-                  (comment ? `📍 <b>Инфо:</b> ${comment}` : "");
+                  (comment ? `📍 <b>Инфо:</b> ${esc(comment)}` : "");
       sendTgAlert(msg);
 
       cart = {};
@@ -1354,63 +1236,48 @@
       renderCatalog();
       checkProfile();
       alert(`✅ Заказ ${orderId} успешно оформлен! Куратор свяжется с вами.`);
-    }
-
-    function openProductDetail(productId) {
+      }
+function openProductDetail(productId) {
       const p = products.find(i => String(i.id) === String(productId));
       if (!p) return;
-
       const imgBox = document.getElementById("pd-img-box");
       if (p.img) {
-        imgBox.innerHTML = `<img src="${encodeURI(p.img)}" alt="${p.name}">`;
+        imgBox.innerHTML = `<img src="${esc(encodeURI(p.img))}" alt="${esc(p.name)}">`;
       } else {
-        imgBox.innerHTML = `<div style="width:100%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; font-size:64px; background:rgba(0,0,0,0.3); border-radius:16px; margin-bottom:14px;">${p.icon || '📦'}</div>`;
+        imgBox.innerHTML = `<div style="width:100%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; font-size:64px; background:rgba(0,0,0,0.3); border-radius:16px; margin-bottom:14px;">${esc(p.icon || '📦')}</div>`;
       }
-
       document.getElementById("pd-title").innerText = p.name;
       document.getElementById("pd-price").innerText = `${p.price.toLocaleString('ru-RU')} ₽`;
       document.getElementById("pd-desc").innerText = p.desc || "Описание товара уточняется у куратора.";
-
       const btnBox = document.getElementById("pd-action-btn-box");
       const count = cart[p.id] || 0;
       
       btnBox.innerHTML = count === 0
-        ? `<button class="btn-buy" style="padding:14px; font-size:15px;" onclick="updateCart('${p.id}', 1); openProductDetail('${p.id}');">Добавить в корзину</button>`
+        ? `<button class="btn-buy" style="padding:14px; font-size:15px;" onclick="updateCart('${esc(p.id)}', 1); openProductDetail('${esc(p.id)}');">Добавить в корзину</button>`
         : `<div class="counter" style="padding:8px 12px; font-size:16px;">
-            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart('${p.id}', -1); openProductDetail('${p.id}');">−</button>
+            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart('${esc(p.id)}', -1); openProductDetail('${esc(p.id)}');">−</button>
             <span style="font-size:16px;">В корзине: ${count} шт.</span>
-            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart('${p.id}', 1); openProductDetail('${p.id}');">+</button>
+            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart('${esc(p.id)}', 1); openProductDetail('${esc(p.id)}');">+</button>
            </div>`;
-
       document.getElementById("modal-product-detail").classList.add("active");
     }
-
     function closeProductDetail() {
       document.getElementById("modal-product-detail").classList.remove("active");
     }
-
         function checkAdminAccess() {
       const tgUserId = String(tg?.initDataUnsafe?.user?.id || "");
-      const activeUser = JSON.parse(localStorage.getItem("active_student_user") || "{}");
       const admBtn = document.getElementById("nav-item-admin");
-
-      // Доступ ТОЛЬКО если Telegram ID совпадает с твоим ADMIN_CHAT_ID (8753317016)
-      // или если ник строго равен "admin"
-      if ((tgUserId !== "" && tgUserId === String(ADMIN_CHAT_ID)) || activeUser.cleanUsername === "admin") {
-        isAdminUser = true;
-        if (admBtn) admBtn.style.display = "flex";
-      } else {
-        isAdminUser = false;
-        if (admBtn) admBtn.style.display = "none";
-        
-        // Если обычный пользователь пытается открыть страницу админа — выкидываем в каталог
+      // Админ — только владелец бота: Telegram ID должен совпасть с ADMIN_CHAT_ID.
+      // Ник, логин и профиль на доступ не влияют.
+      isAdminUser = (tgUserId !== "" && tgUserId === String(ADMIN_CHAT_ID));
+      if (admBtn) admBtn.style.display = isAdminUser ? "flex" : "none";
+      if (!isAdminUser) {
         const adminPage = document.getElementById("page-admin");
         if (adminPage && adminPage.classList.contains("active")) {
           switchNav('catalog', document.querySelector('.nav-item'));
         }
       }
     }
-
     function toggleAdmSub() {
       const tab = document.getElementById("adm-tab").value;
       const subGroup = document.getElementById("adm-sub-group");
@@ -1420,7 +1287,6 @@
     function handleImageUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         const img = new Image();
@@ -1430,7 +1296,6 @@
           const maxDim = 450;
           let width = img.width;
           let height = img.height;
-
           if (width > height) {
             if (width > maxDim) {
               height = Math.round((height * maxDim) / width);
@@ -1442,15 +1307,12 @@
               height = maxDim;
             }
           }
-
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
-
           // Получаем легкий формат картинки прямо в память приложения
           const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.7);
-
           document.getElementById("adm-img").value = compressedDataUrl;
           document.getElementById("adm-preview-tag").src = compressedDataUrl;
           document.getElementById("adm-img-preview").style.display = "flex";
@@ -1465,7 +1327,6 @@
         alert("У вас нет прав администратора!");
         return;
       }
-
       const name = document.getElementById("adm-name").value.trim();
       const tab = document.getElementById("adm-tab").value;
       const sub = document.getElementById("adm-sub").value;
@@ -1473,16 +1334,13 @@
       const img = document.getElementById("adm-img").value.trim();
       const icon = document.getElementById("adm-icon").value.trim();
       const desc = document.getElementById("adm-desc").value.trim();
-
       if (!name || isNaN(price) || price <= 0) {
         alert("Укажите корректное название и цену товара!");
         return;
       }
-
       const btn = document.getElementById("adm-save-btn");
       btn.innerText = "Сохранение...";
       btn.disabled = true;
-
       const newProd = {
         id: String(Date.now()),
         tab: tab,
@@ -1493,15 +1351,12 @@
         icon: (!img && icon) ? icon : (img ? undefined : '📦'),
         desc: desc || "Описание скоро появится."
       };
-
       products.unshift(newProd);
       renderCatalog();
       renderAdminProducts();
-
       const cloudData = await getFullCloudData();
-      cloudData.products = products;
-      const ok = await saveFullCloudData(cloudData);
-
+      let ok = false;
+      if (cloudData) { cloudData.products = products; ok = await saveFullCloudData(cloudData); }
       if (ok) {
         alert("✅ Товар успешно добавлен!");
         document.getElementById("adm-name").value = "";
@@ -1514,6 +1369,11 @@
         document.getElementById("adm-img-preview").style.display = "none";
         document.getElementById("adm-preview-tag").src = "";
     
+      } else {
+        alert("❌ Не удалось сохранить в базу. Товар не добавлен.");
+        products.shift();
+        renderCatalog();
+        renderAdminProducts();
       }
 
       btn.innerText = "Опубликовать товар";
@@ -1521,6 +1381,7 @@
     }
 
     async function deleteProduct(rawId) {
+      if (!isAdminUser) return;
       if (!confirm("Вы точно хотите удалить этот товар из магазина?")) return;
 
       const targetId = String(rawId).trim();
@@ -1536,64 +1397,53 @@
         alert("Ошибка: товар не найден в списке.");
         return;
       }
-
-      if (cart[targetId]) {
+if (cart[targetId]) {
         delete cart[targetId];
         updateCartBar();
       }
-
       renderAdminProducts();
       renderCatalog();
-
       try {
         const cloudData = await getFullCloudData();
-        cloudData.products = products;
-        await saveFullCloudData(cloudData);
+        if (!cloudData || !(await saveFullCloudData({ ...cloudData, products }))) alert("Не удалось сохранить удаление в базе.");
       } catch (err) {}
     }
-
     function renderAdminProducts() {
       const container = document.getElementById("adm-prod-list");
       const countEl = document.getElementById("adm-prod-count");
       if (!container) return;
       if (countEl) countEl.innerText = products.length;
-
       if (!products.length) {
         container.innerHTML = `<div style="text-align:center; color:var(--hint); font-size:12px; padding:12px;">В каталоге нет товаров</div>`;
         return;
       }
-
       container.innerHTML = products.map(p => `
         <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; margin-bottom:6px;">
           <div style="max-width: 65%;">
-            <div style="font-weight:700; font-size:13px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
-            <div style="font-size:11px; color:var(--hint);">${p.price.toLocaleString('ru-RU')} ₽ • ${p.tab}</div>
+            <div style="font-weight:700; font-size:13px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(p.name)}</div>
+            <div style="font-size:11px; color:var(--hint);">${p.price.toLocaleString('ru-RU')} ₽ • ${esc(p.tab)}</div>
           </div>
-          <button type="button" onclick="deleteProduct('${String(p.id)}')" style="background:var(--danger); border:none; color:#fff; border-radius:6px; padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer;">
+          <button type="button" onclick="deleteProduct('${esc(p.id)}')" style="background:var(--danger); border:none; color:#fff; border-radius:6px; padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer;">
             Удалить
           </button>
         </div>
       `).join("");
     }
-
     // --- ЗМЕЙКА ---
     const canvas = document.getElementById("snake-canvas");
     const ctx = canvas ? canvas.getContext("2d") : null;
     const gridSize = 20;
     const tileCount = 15;
-
     let snake = [];
     let food = { x: 5, y: 5 };
     let dx = 1, dy = 0;
     let nextDx = 1, nextDy = 0;
     let snakeScore = 0;
-    let snakeBest = localStorage.getItem("snake_dent_best") || 0;
+    let snakeBest = Number(localStorage.getItem("snake_dent_best")) || 0;
     let snakeGameInterval = null;
     let isSnakeRunning = false;
-
     const bestEl = document.getElementById("snake-best");
     if (bestEl) bestEl.innerText = snakeBest;
-
     function startSnakeGame() {
       snake = [
         { x: 5, y: 7 },
@@ -1606,13 +1456,11 @@
       document.getElementById("snake-score").innerText = snakeScore;
       document.getElementById("snake-overlay").style.display = "none";
       document.getElementById("snake-promo-box").style.display = "none";
-
       spawnTooth();
       isSnakeRunning = true;
       if (snakeGameInterval) clearInterval(snakeGameInterval);
       snakeGameInterval = setInterval(gameLoop, 140);
     }
-
     function spawnTooth() {
       let valid = false;
       while (!valid) {
@@ -1621,7 +1469,6 @@
         valid = !snake.some(segment => segment.x === food.x && segment.y === food.y);
       }
     }
-
     function changeSnakeDir(dir) {
       if (!isSnakeRunning) return;
       if (dir === 'UP' && dy === 0) { nextDx = 0; nextDy = -1; }
@@ -1629,19 +1476,17 @@
       if (dir === 'LEFT' && dx === 0) { nextDx = -1; nextDy = 0; }
       if (dir === 'RIGHT' && dx === 0) { nextDx = 1; nextDy = 0; }
     }
-
     window.addEventListener("keydown", (e) => {
+      if (isSnakeRunning && e.code.startsWith("Arrow")) e.preventDefault();
       if (["ArrowUp", "KeyW"].includes(e.code)) changeSnakeDir('UP');
       if (["ArrowDown", "KeyS"].includes(e.code)) changeSnakeDir('DOWN');
       if (["ArrowLeft", "KeyA"].includes(e.code)) changeSnakeDir('LEFT');
       if (["ArrowRight", "KeyD"].includes(e.code)) changeSnakeDir('RIGHT');
     });
-
     function gameLoop() {
       dx = nextDx;
       dy = nextDy;
       const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-
       if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) return gameOverSnake();
       if (snake.some(seg => seg.x === head.x && seg.y === head.y)) return gameOverSnake();
 
@@ -1677,12 +1522,13 @@
       snake.forEach((seg, i) => {
         ctx.fillStyle = (i === 0) ? "#38bdf8" : "rgba(56, 189, 248, 0.65)";
         ctx.beginPath();
-        ctx.roundRect(seg.x * gridSize + 1, seg.y * gridSize + 1, gridSize - 2, gridSize - 2, 5);
+        if (ctx.roundRect) ctx.roundRect(seg.x * gridSize + 1, seg.y * gridSize + 1, gridSize - 2, gridSize - 2, 5);
+        else ctx.rect(seg.x * gridSize + 1, seg.y * gridSize + 1, gridSize - 2, gridSize - 2);
         ctx.fill();
       });
-    }
+  }
 
-    function gameOverSnake() {
+      function gameOverSnake() {
       clearInterval(snakeGameInterval);
       isSnakeRunning = false;
       if (window.Telegram?.WebApp?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
@@ -1703,3 +1549,6 @@
   </script>
 </body>
 </html>
+    
+
+      
