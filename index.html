@@ -120,6 +120,115 @@
       font-weight: 800;
       color: var(--accent);
       margin-bottom: 10px;
+    }grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* Ровно 2 колонки, как на WB и Ozon */
+      gap: 10px;
+      padding: 12px;
+    }
+
+
+    .card, .box {
+      background: rgba(22, 32, 61, 0.7) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border-radius: 18px;
+    }
+
+      .card {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      border-radius: 14px;
+      }
+
+    .card img, .card-product-img {
+      width: 100% !important;
+      aspect-ratio: 1 / 1 !important;
+      object-fit: cover !important;
+      border-radius: 12px !important;
+      display: block !important;
+      margin-bottom: 8px !important;
+    }
+
+.card-img-box {
+      width: 100%;
+    /* 1. Сетка маркетплейса в 2 колонки */
+    #catalog-grid, .grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 10px !important;
+      padding: 12px 10px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    /* 2. Общие стеклянные стили для карточек и блоков */
+    .card, .box {
+      background: rgba(22, 32, 61, 0.7) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border-radius: 16px !important;
+    }
+
+    /* 3. Сама карточка товара */
+    .card {
+      min-width: 0 !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      padding: 8px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      cursor: pointer !important;
+    }
+
+    /* 4. Квадратный контейнер для фото */
+    .card-img-box {
+      width: 100% !important;
+      aspect-ratio: 1 / 1 !important;
+      border-radius: 10px !important;
+      overflow: hidden !important;
+      margin-bottom: 6px !important;
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 5. Картинка внутри карточки */
+    .card img, .card-product-img {
+      width: 100% !important;
+      height: 100% !important;
+      aspect-ratio: 1 / 1 !important;
+      object-fit: cover !important;
+      border-radius: 10px !important;
+      display: block !important;
+      margin-bottom: 0 !important;
+    }
+
+    /* 6. Тексты цены и названия */
+    .card-title {
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      color: #ffffff !important;
+      margin: 2px 0 6px 0 !important;
+      line-height: 1.25 !important;
+      min-height: 30px !important;
+      word-break: break-word !important;
+    }
+
+    .card-price {
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      color: var(--accent) !important;
+      margin-bottom: 8px !important;
     }
 
     .btn-buy {
