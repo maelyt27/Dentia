@@ -490,7 +490,7 @@
     }
 
     const products = [
-      { id: 1, tab: 'kits', sub: 'therapy', icon: '🩺', name: 'Терапевтический набор студента (базовый)', price: 4900 },
+      { id: 1, tab: 'kits', sub: 'therapy', img: 'INVOKA-9b0b51d7-51c0-4762-ab84-2d23ca4aa0e9-res-0.png', name: 'Терапевтический набор студента (базовый)', price: 4900 },
       { id: 2, tab: 'kits', sub: 'endo', icon: '📍', name: 'Эндодонтический набор (файлы, плаггеры)', price: 3400 },
       { id: 3, tab: 'kits', sub: 'surgery', icon: '🪡', name: 'Хирургический набор (щипцы, элеваторы)', price: 5800 },
       { id: 4, tab: 'kits', sub: 'ozpt', icon: '🦷', name: 'Набор для фантомного курса ОЗПТ', price: 6200 },
@@ -524,7 +524,13 @@
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <div class="card-icon">${p.icon}</div>
+          <div class="card-img-box">
+  ${p.img 
+    ? `<img src="${p.img}" alt="${p.name}" class="card-product-img">` 
+    : `<span style="font-size:36px;">${p.icon || '📦'}</span>`
+  }
+</div>
+
           <div class="card-title">${p.name}</div>
           <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
           ${count === 0 
