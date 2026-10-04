@@ -6,6 +6,21 @@
   <title>Dental Student Store</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+        /* Обязательное скрытие неактивных вкладок */
+    .page-section {
+      display: none !important;
+      padding: 16px;
+    }
+
+    /* Отображение только активной вкладки */
+    .page-section.active {
+      display: block !important;
+    }
+
+    #page-catalog.page-section.active {
+      padding: 0 !important;
+    }
+    
     :root {
       --bg: var(--tg-theme-bg-color, #0b1329);
       --card-bg: var(--tg-theme-secondary-bg-color, #16203d);
