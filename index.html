@@ -467,5 +467,184 @@
     let currentSub = 'therapy';
     let cart = {};
 
-    function renderCatalog() {
-      const container = document
+        function renderCatalog() {
+      const container = document.getElementById("catalog-grid");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const filtered = products.filter(p => {
+        if (p.tab !== currentTab) return false;
+        if (currentTab === 'kits' && p.sub !== currentSub) return false;
+        return true;
+      });
+
+      filtered.forEach(p => {
+        const count = cart[p.id] || 0;
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="card-icon">${p.icon}</div>
+          <div class="card-title">${p.name}</div>
+          <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
+          ${count === 0 
+            ? `<button class="btn-buy" onclick="updateCart(${p.id}, 1)">В корзину</button>`
+            : `<div class="counter">
+                <button onclick="updateCart(${p.id}, -1)">−</button>
+                <span>${count}</span>
+                <button onclick="updateCart(${p.id}, 1)">+</button>
+               </div>`
+          }
+        `;
+        container.appendChild(card);
+      });
+
+      updateCartBar();
+    }
+
+    function switchMainTab(tab, el) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      const sub = document.getElementById('kits-subtabs');
+      if (sub) sub.style.display = (tab === 'kits') ? 'flex' : 'none';
+      renderCatalog();
+    }
+
+    function switchSubTab(sub, el) {
+      currentSub = sub;
+      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      renderCatalog();
+    }
+
+    function updateCart(id, delta) {
+      cart[id] = (cart[id] || 0) + delta;
+      if (cart[id] <= 0) delete cart[id];
+      renderCatalog();
+    }
+
+    function updateCartBar() {
+      let total = 0, count = 0;
+      for (let id in cart) {
+        const p = products.find(i => i.id == id);
+        if (p) {
+          total += p.price * cart[id];
+          count += cart[id];
+        }
+      }
+      const bar = document.getElementById("cart-float");
+      if (!bar) return;
+      if (count > 0) {
+        bar.style.display = "flex";
+        document.getElementById("cart-count").innerText = `${count} шт.`;
+        document.getElementById("cart-total").innerText = `Оформить ${total.toLocaleString('ru-RU')} ₽ →`;
+      } else {
+        bar.style.display = "none";
+      }
+    }
+
+    function switchNav(page, el) {
+      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.getElementById(`page-${page}`).classList.add('active');
+      el.classList.add('active');
+    }
+
+    function openCheckout() {
+      let total = 0, summary = [];
+      for (let id in cart) {
+        const p = products.find(i => i.id == id);
+        if (p) {
+          total += p.price * cart[id];
+          summary.push(`${p.name} × ${cart[id]}`);
+        }
+      }
+      document.getElementById("order-summary").innerHTML = `<b>Состав:</b><br>${summary.join("<br>")}<br><br><b>Итого:</b> ${total} ₽`;
+      document.getElementById("modal-order").classList.add("active");
+    }
+
+    function closeCheckout() {
+      document.getElementById("modal-order").classList.remove("active");
+    }
+
+    async function sendOrder() {
+      const activeUser = JSON.parse(localStorage.getItem("active_student_user"));
+      if (!activeUser) {
+        alert("Пожалуйста, войдите в свой профиль или зарегистрируйтесь перед оформлением заказа!");
+        closeCheckout();
+        switchNav('profile', document.querySelectorAll('.nav-item')[1]);
+        return;
+      }
+
+      let total = 0, itemsList = [];
+      for (let id in cart) {
+        const p = products.find(i => i.id == id);
+        if (p) {
+          total += p.price * cart[id];
+          itemsList.push(`${p.name} (x${cart[id]})`);
+        }
+      }
+
+      const orderBtn = document.getElementById('order-submit-btn');
+      orderBtn.innerText = "Оформление...";
+      orderBtn.disabled = true;
+
+      const comment = document.getElementById("order-comment").value.trim();
+      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+      const itemsString = itemsList.join(", ");
+
+      const newOrderData = {
+        id: orderId,
+        items: itemsString + (comment ? ` [${comment}]` : ""),
+        total: total,
+        date: new Date().toLocaleDateString('ru-RU')
+      };
+
+      try {
+        const users = await fetchUsersFromCloud();
+        const userIndex = users.findIndex(u => u.cleanUsername === activeUser.cleanUsername);
+
+        if (userIndex !== -1) {
+          if (!Array.isArray(users[userIndex].orders)) {
+            users[userIndex].orders = [];
+          }
+          users[userIndex].orders.unshift(newOrderData);
+          await saveUsersToCloud(users);
+        }
+      } catch (err) {
+        console.error("Ошибка сохранения заказа в БД:", err);
+      }
+
+      if (!Array.isArray(activeUser.orders)) {
+        activeUser.orders = [];
+      }
+      activeUser.orders.unshift(newOrderData);
+      localStorage.setItem("active_student_user", JSON.stringify(activeUser));
+
+      const tgUser = tg?.initDataUnsafe?.user;
+      const userLink = tgUser?.username ? `@${tgUser.username}` : `@${activeUser.cleanUsername}`;
+
+      const msg = `🛍️ <b>НОВЫЙ ЗАКАЗ: ${orderId}</b>\n\n` +
+                  `👤 <b>Студент:</b> ${activeUser.username} (${activeUser.course} курс)\n` +
+                  `📱 <b>Контакт:</b> ${userLink}\n` +
+                  `📦 <b>Состав:</b>\n• ${itemsList.join("\n• ")}\n\n` +
+                  `💰 <b>Сумма:</b> ${total.toLocaleString('ru-RU')} ₽\n` +
+                  (comment ? `📍 <b>Инфо:</b> ${comment}` : "");
+      sendTgAlert(msg);
+
+      cart = {};
+      orderBtn.innerText = "Подтвердить заказ";
+      orderBtn.disabled = false;
+
+      closeCheckout();
+      renderCatalog();
+      checkProfile();
+      alert(`Заказ ${orderId} успешно оформлен! Куратор свяжется с вами.`);
+    }
+
+    checkProfile();
+    renderCatalog();
+  </script>
+</body>
+</html>
+
