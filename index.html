@@ -18,13 +18,12 @@
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
+    body {
       margin: 0; padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: #080d1a;
       color: var(--text);
       padding-bottom: 95px;
-      /* Премиальный точечный узор + мягкое неоновое свечение сверху */
       background-image: 
         radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.18) 0%, transparent 60%),
         radial-gradient(rgba(255, 255, 255, 0.08) 1.2px, transparent 1.2px);
@@ -32,10 +31,12 @@
       background-attachment: fixed;
     }
 
-
     header {
       padding: 16px; position: sticky; top: 0;
-      background: var(--bg); z-index: 10;
+      background: rgba(8, 13, 26, 0.8) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 10;
       border-bottom: 1px solid var(--card-border);
     }
     .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
@@ -58,164 +59,6 @@
     }
     .sub-btn.active { background: rgba(56, 189, 248, 0.2); color: var(--accent); border-color: var(--accent); }
 
-    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 14px 16px; }
-    .card {
-      background: var(--card-bg); border-radius: 16px; padding: 12px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      border: 1px solid var(--card-border);
-    }
-    .card-icon {
-      width: 100%;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 34px;
-      overflow: hidden;
-      border-radius: 12px;
-      margin-bottom: 6px;
-      background: rgba(0, 0, 0, 0.2);
-    }
-    .card-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover; /* Фото аккуратно заполнит прямоугольник без искажения пропорций */
-      border-radius: 12px;
-      display: block;
-    }
-
-    .card-title { font-size: 13px; font-weight: 600; margin: 6px 0; min-height: 32px; line-height: 1.25; }
-    .card-price { font-size: 15px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
-
-    .btn-buy {
-      background: var(--accent); color: var(--accent-text); border: none;
-      border-radius: 8px; padding: 8px; font-weight: 700; font-size: 12px; cursor: pointer; width: 100%;
-    }
-    .counter {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(255,255,255,0.06); border-radius: 8px; padding: 3px;
-    }
-    .counter button {
-      background: var(--accent); color: var(--accent-text); border: none;
-      width: 26px; height: 26px; border-radius: 6px; font-weight: 800; cursor: pointer;
-    }
-
-    .page-section { display: none; padding: 16px; }
-    .page-section.active { display: block; }
-
-    .box {
-      background: var(--card-bg); border-radius: 16px; padding: 16px;
-      border: 1px solid var(--card-border); margin-bottom: 14px;
-    }
-
-    .auth-toggle {
-      display: flex; background: rgba(0,0,0,0.25); border-radius: 10px; padding: 4px; margin-bottom: 16px;
-    }
-    .auth-tab {
-      flex: 1; text-align: center; padding: 8px; font-size: 13px; font-weight: 700;
-      border-radius: 8px; cursor: pointer; color: var(--hint);
-    }
-    .auth-tab.active { background: var(--accent); color: var(--accent-text); }
-
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 12px; color: var(--hint); margin-bottom: 4px; }
-    .form-group input, .form-group select {
-      width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.2);
-      border: 1px solid var(--card-border); color: #fff; font-size: 14px; outline: none;
-    }
-
-    .navbar {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--card-bg); border-top: 1px solid var(--card-border);
-      display: flex; justify-content: space-around; padding: 8px 0; z-index: 100;
-    }
-    .nav-item {
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      color: var(--hint); font-size: 11px; font-weight: 600; cursor: pointer;
-    }
-    .nav-item.active { color: var(--accent); }
-    .nav-item span:first-child { font-size: 18px; }
-
-    .cart-float {
-      position: fixed; bottom: 65px; left: 16px; right: 16px;
-      background: var(--accent); color: var(--accent-text); padding: 12px 18px;
-      border-radius: 14px; display: none; justify-content: space-between;
-      align-items: center; font-weight: 700; z-index: 99; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
-    }
-
-        .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      z-index: 1000; /* Поднимаем модалку выше всего */
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    .modal.active {
-      display: flex;
-    }
-    .modal-content {
-      background: #16203d;
-      width: 100%;
-      max-width: 500px; /* Чтобы на компьютере модалка не растягивалась на весь монитор */
-      border-radius: 20px 20px 0 0;
-      padding: 24px 20px;
-      max-height: 85vh;
-      overflow-y: auto;
-      position: relative;
-      z-index: 1001;
-      pointer-events: auto; /* Принудительно разрешаем клики мыши */
-    }
-
-    /* Специально для полей ввода внутри модалки */
-    .modal-content input, 
-    .modal-content select {
-      user-select: text !important;
-      -webkit-user-select: text !important;
-      cursor: text !important;
-      position: relative;
-      z-index: 1002;
-    }
-
-
-        /* Стеклянный эффект карточек */
-    .card, .box {
-      background: rgba(22, 32, 61, 0.7) !important;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      border-radius: 18px;
-    }
-    .card:active {
-      transform: scale(0.98);
-      border-color: rgba(56, 189, 248, 0.5) !important;
-    }
-
-    /* Неоновые кнопки с градиентом */
-    .btn-buy {
-      background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
-      color: #ffffff !important;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
-      border-radius: 10px;
-    }
-
-    /* Полупрозрачная навигация и корзина */
-    header, .navbar {
-      background: rgba(8, 13, 26, 0.8) !important;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-    .cart-float {
-      background: linear-gradient(135deg, #38bdf8, #2563eb) !important;
-      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5) !important;
-    }
-
-    
-    /* Сетка: на планшете делает карточки адекватного размера, а не гигантскими */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(170px, 200px));
@@ -224,29 +67,44 @@
       justify-content: start;
     }
 
+    .card, .box {
+      background: rgba(22, 32, 61, 0.7) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border-radius: 18px;
+    }
+
     .card {
-      background: rgba(22, 32, 61, 0.75);
-      border-radius: 16px;
       padding: 10px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
     }
 
-    /* Картинка: всегда квадратная, занимает весь верх карточки */
-    .card img {
+    .card img, .card-product-img {
       width: 100% !important;
-      aspect-ratio: 1 / 1 !important; /* Ровный аккуратный квадрат */
-      height: auto !important;
-      object-fit: cover !important; /* Заполняет всю карточку без черных полос */
+      aspect-ratio: 1 / 1 !important;
+      object-fit: cover !important;
       border-radius: 12px !important;
       display: block !important;
       margin-bottom: 8px !important;
     }
 
-    /* Название товара: четкий белый цвет, чтобы не сливалось с фоном */
+    .card-img-box {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
     .card-title {
       font-size: 13px;
       font-weight: 700;
@@ -263,7 +121,159 @@
       margin-bottom: 10px;
     }
 
-  
+    .btn-buy {
+      background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+      border-radius: 10px;
+      border: none;
+      padding: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .counter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 3px;
+    }
+    .counter button {
+      background: var(--accent);
+      color: var(--accent-text);
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .page-section { display: none; padding: 16px; }
+    .page-section.active { display: block; }
+
+    .box { padding: 16px; margin-bottom: 14px; }
+
+    .auth-toggle {
+      display: flex;
+      background: rgba(0,0,0,0.25);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--hint);
+    }
+    .auth-tab.active { background: var(--accent); color: var(--accent-text); }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; color: var(--hint); margin-bottom: 4px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .navbar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(8, 13, 26, 0.8) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      z-index: 100;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--hint);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .nav-item.active { color: var(--accent); }
+    .nav-item span:first-child { font-size: 18px; }
+
+    .cart-float {
+      position: fixed; bottom: 65px; left: 16px; right: 16px;
+      background: linear-gradient(135deg, #38bdf8, #2563eb) !important;
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5) !important;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 14px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      z-index: 99;
+    }
+
+    .modal {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
+      z-index: 1000; display: none; align-items: flex-end; justify-content: center;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #16203d;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      z-index: 1001;
+      pointer-events: auto;
+    }
+
+    .modal-content input, .modal-content select, .modal-content textarea {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      cursor: text !important;
+      position: relative;
+      z-index: 1002;
+    }
+
+    .wb-card-modal img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 14px;
+      background: rgba(0,0,0,0.3);
+    }
+    .wb-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -295,7 +305,6 @@
   <div id="page-profile" class="page-section">
     <div class="brand">👤 Личный кабинет</div>
     
-    <!-- Форма Авторизации / Регистрации -->
     <div class="box" id="auth-box">
       <div class="auth-toggle">
         <div class="auth-tab active" id="btn-mode-login" onclick="setAuthMode('login')">Вход</div>
@@ -327,7 +336,6 @@
       <button class="btn-buy" style="padding:12px; margin-top:4px;" id="auth-submit-btn" onclick="handleAuthSubmit()">Войти в аккаунт</button>
     </div>
 
-    <!-- Карточка активного профиля -->
     <div class="box" id="profile-card" style="display:none;">
       <h3 id="prof-display-name" style="margin:0 0 4px 0;">Студент</h3>
       <p style="margin:0; color:var(--hint); font-size:14px;" id="prof-display-course">2 курс</p>
@@ -351,8 +359,7 @@
       <a href="https://t.me/newwwaff" target="_blank" style="text-decoration:none;">
         <button class="btn-buy" style="padding:14px; font-size:14px;">Написать менеджеру в Telegram</button>
       </a>
-
-  </div>    
+    </div>    
   </div>
 
   <!-- Вкладка: Стоматологическая Змейка -->
@@ -365,11 +372,9 @@
         <span style="color: var(--hint); font-size: 13px;">Рекорд: <span id="snake-best">0</span></span>
       </div>
 
-      <!-- Поле игры -->
       <div style="position: relative; width: 300px; height: 300px; margin: 0 auto; background: rgba(0,0,0,0.35); border: 2px solid rgba(56, 189, 248, 0.3); border-radius: 14px; overflow: hidden;">
         <canvas id="snake-canvas" width="300" height="300" style="display: block;"></canvas>
         
-        <!-- Меню проигрыша / старта -->
         <div id="snake-overlay" style="position: absolute; inset: 0; background: rgba(11, 19, 41, 0.85); backdrop-filter: blur(4px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px;">
           <div style="font-size: 40px; margin-bottom: 6px;">🐍🦷</div>
           <h3 id="snake-over-title" style="margin: 0 0 6px 0; color: #fff;">Собери все зубы!</h3>
@@ -384,7 +389,6 @@
         </div>
       </div>
 
-      <!-- Кнопки управления для смартфона и планшета -->
       <div style="margin-top: 14px; display: inline-grid; grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(2, 46px); gap: 8px; justify-content: center;">
         <div></div>
         <button class="btn-buy" style="padding:0; font-size: 18px;" onclick="changeSnakeDir('UP')">▲</button>
@@ -397,7 +401,7 @@
     </div>
   </div>
   
-  <!-- Вкладка: Админ-панель (видна только тебе) -->
+  <!-- Вкладка: Админ-панель -->
   <div id="page-admin" class="page-section">
     <div class="brand">⚙️ Панель Администратора</div>
     <div class="box">
@@ -431,7 +435,7 @@
       </div>
       <div class="form-group">
         <label>Имя файла картинки или ссылка</label>
-        <input type="text" id="adm-img" placeholder="Набор терапия.jpg или https://...">
+        <input type="text" id="adm-img" placeholder="Набор терапия.jpg или ссылка">
       </div>
       <div class="form-group">
         <label>Или смайлик (если нет картинки)</label>
@@ -481,7 +485,7 @@
         <input type="text" id="order-comment" placeholder="Город, клиника/ВУЗ или пункт СДЭК">
       </div>
       <button class="btn-buy" style="padding:14px; font-size:15px;" id="order-submit-btn" onclick="sendOrder()">Подтвердить заказ</button>
-      <button onclick="closeCheckout()" style="width:100%; background:none; border:none; color:var(--hint); padding:10px; margin-top:6px;">Закрыть</button>
+      <button onclick="closeCheckout()" style="width:100%; background:none; border:none; color:var(--hint); padding:10px; margin-top:6px; cursor:pointer;">Закрыть</button>
     </div>
   </div>
 
@@ -496,709 +500,20 @@
     <div class="nav-item" onclick="switchNav('support', this)">
       <span>💬</span><span>Поддержка</span>
     </div>
-        <div class="nav-item" onclick="switchNav('snake', this)">
+    <div class="nav-item" onclick="switchNav('snake', this)">
       <span>🐍</span><span>Змейка</span>
-        </div>
-        <div class="nav-item" id="nav-item-admin" style="display:none;" onclick="switchNav('admin', this)">
+    </div>
+    <div class="nav-item" id="nav-item-admin" style="display:none;" onclick="switchNav('admin', this)">
       <span>⚙️</span><span>Админ</span>
-        </div>
-    
-    
+    </div>
   </div>
 
   <script>
-    // НАСТРОЙКИ ПОДКЛЮЧЕНИЯ:
     const JSONBIN_ID = "6ac19301ac6210605a110015";
-    const JSONBIN_API_KEY = "$2a$10$G49640U.KQQHqLZ0k7vfc.fw.pnQMw3JtaDJ4jgJJi0WmhEOYNNyW"; // Скопируй из вкладки API Keys на jsonbin.io
+    const JSONBIN_API_KEY = "$2a$10$G49640U.KQQHqLZ0k7vfc.fw.pnQMw3JtaDJ4jgJJi0WmhEOYNNyW";
     const BOT_TOKEN = "8806561978:AAGrGi66DRF4-35ZHs76t_RrlViUmnoaiS0";
     const ADMIN_CHAT_ID = "8753317016";
 
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
-
-    let authMode = 'login';
-
-    function setAuthMode(mode) {
-      authMode = mode;
-      document.getElementById('btn-mode-login').classList.toggle('active', mode === 'login');
-      document.getElementById('btn-mode-reg').classList.toggle('active', mode === 'reg');
-      document.getElementById('reg-course-group').style.display = (mode === 'reg') ? 'block' : 'none';
-      document.getElementById('auth-submit-btn').innerText = (mode === 'reg') ? 'Зарегистрироваться' : 'Войти в аккаунт';
-    }
-
-    // Загрузка пользователей из облака JSONBin
-    async function fetchUsersFromCloud() {
-      if (!JSONBIN_ID || JSONBIN_ID.includes("BIN_ID")) return [];
-      try {
-        const headers = { "Content-Type": "application/json" };
-        if (JSONBIN_API_KEY && !JSONBIN_API_KEY.includes("MASTER_KEY")) {
-          headers["X-Master-Key"] = JSONBIN_API_KEY;
-        }
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, { headers });
-        const json = await res.json();
-        if (!res.ok) {
-          alert("Ошибка чтения БД: " + (json.message || res.statusText));
-          return [];
-        }
-        return Array.isArray(json.record) ? json.record : [];
-      } catch (e) {
-        alert("Сетевая ошибка чтения базы: " + e.message);
-        return [];
-      }
-    }
-
-    // Сохранение пользователей в облако JSONBin (без скрытых копий версий)
-    async function saveUsersToCloud(users) {
-      if (!JSONBIN_ID || JSONBIN_ID.includes("BIN_ID")) return false;
-      try {
-        const headers = {
-          "Content-Type": "application/json",
-          "X-Bin-Versioning": "false"
-        };
-        if (JSONBIN_API_KEY && !JSONBIN_API_KEY.includes("MASTER_KEY")) {
-          headers["X-Master-Key"] = JSONBIN_API_KEY;
-        }
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
-          method: "PUT",
-          headers: headers,
-          body: JSON.stringify(users)
-        });
-        const json = await res.json();
-        if (!res.ok) {
-          alert("Ошибка сохранения в БД: " + (json.message || res.statusText));
-          return false;
-        }
-        return true;
-      } catch (e) {
-        alert("Сетевая ошибка отправки: " + e.message);
-        return false;
-      }
-    }
-
-    // Оповещения в Telegram бот
-    function sendTgAlert(text) {
-      if (!BOT_TOKEN || BOT_TOKEN.includes("ТОКЕН")) return;
-      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`;
-      fetch(url).catch(e => console.log(e));
-    }
-
-    // Вход / Регистрация
-    async function handleAuthSubmit() {
-      const usernameInput = document.getElementById('auth-username').value.trim();
-      const passwordInput = document.getElementById('auth-password').value.trim();
-      const courseInput = document.getElementById('auth-course').value;
-
-      if (!usernameInput || !passwordInput) {
-        alert("Заполните никнейм и пароль!");
-        return;
-      }
-
-      const submitBtn = document.getElementById('auth-submit-btn');
-      submitBtn.innerText = "Связь с базой...";
-      submitBtn.disabled = true;
-
-      const users = await fetchUsersFromCloud();
-      const cleanUsername = usernameInput.replace(/^@/, '').toLowerCase();
-
-      if (authMode === 'reg') {
-        // Проверка на занятость ника
-        const userExists = users.some(u => u.cleanUsername === cleanUsername);
-        if (userExists) {
-          alert("❌ Пользователь с таким никнеймом уже зарегистрирован! Придумайте другой или выполните вход.");
-          submitBtn.innerText = "Зарегистрироваться";
-          submitBtn.disabled = false;
-          return;
-        }
-
-        const newUser = {
-          username: usernameInput,
-          cleanUsername: cleanUsername,
-          password: passwordInput,
-          course: courseInput,
-          registeredAt: new Date().toLocaleDateString('ru-RU'),
-          orders: []
-        };
-
-        users.push(newUser);
-        const isSaved = await saveUsersToCloud(users);
-        if (!isSaved) {
-          submitBtn.innerText = "Зарегистрироваться";
-          submitBtn.disabled = false;
-          return;
-        }
-
-        // Сохраняем сессию только текущего пользователя
-        localStorage.setItem("active_student_user", JSON.stringify(newUser));
-
-        sendTgAlert(`👤 <b>Новая регистрация студента!</b>\n\n• <b>Ник:</b> @${cleanUsername}\n• <b>Курс:</b> ${courseInput}\n• <b>Пароль:</b> <code>${passwordInput}</code>`);
-        alert("✅ Регистрация прошла успешно! Добро пожаловать.");
-      } else {
-        // Вход
-        const user = users.find(u => u.cleanUsername === cleanUsername);
-
-        if (!user) {
-          alert("❌ Пользователь с таким никнеймом не найден! Проверьте ввод или перейдите во вкладку «Регистрация».");
-          submitBtn.innerText = "Войти в аккаунт";
-          submitBtn.disabled = false;
-          return;
-        }
-
-        if (user.password !== passwordInput) {
-          alert("❌ Неверный пароль! Попробуйте снова.");
-          submitBtn.innerText = "Войти в аккаунт";
-          submitBtn.disabled = false;
-          return;
-        }
-
-        if (!Array.isArray(user.orders)) {
-          user.orders = [];
-        }
-
-        localStorage.setItem("active_student_user", JSON.stringify(user));
-        alert(`✅ С возвращением, ${user.username}!`);
-      }
-
-      submitBtn.disabled = false;
-      checkProfile();
-    }
-
-    // Проверка статуса профиля и отображение данных
-    function checkProfile() {
-      const user = JSON.parse(localStorage.getItem("active_student_user"));
-      if (user) {
-        document.getElementById("auth-box").style.display = "none";
-        document.getElementById("profile-card").style.display = "block";
-        document.getElementById("prof-display-name").innerText = user.username.startsWith('@') ? user.username : `@${user.username}`;
-        document.getElementById("prof-display-course").innerText = `${user.course} курс`;
-        renderOrdersHistory(user.orders || []);
-      } else {
-        document.getElementById("auth-box").style.display = "block";
-        document.getElementById("profile-card").style.display = "none";
-        renderOrdersHistory([]);
-        setAuthMode('login');
-      }
-    }
-
-    // Выход из профиля с полной очисткой данных на экране
-    function logoutProfile() {
-      localStorage.removeItem("active_student_user");
-      // Удаляем возможные старые следы
-      localStorage.removeItem("student_profile");
-      localStorage.removeItem("student_orders");
-      checkProfile();
-    }
-
-    // Отрисовка списка заказов конкретного пользователя
-    function renderOrdersHistory(orders) {
-      const container = document.getElementById("orders-history");
-      if (!container) return;
-      if (!orders || orders.length === 0) {
-        container.innerHTML = "У вас пока нет активных заказов.";
-        return;
-      }
-      container.innerHTML = orders.map(o => `
-        <div style="border-bottom:1px solid var(--card-border); padding:8px 0;">
-          <div style="font-weight:700; color:var(--accent);">${o.id} • ${o.date}</div>
-          <div style="margin:3px 0;">${o.items}</div>
-          <div style="font-weight:600;">Сумма: ${o.total.toLocaleString('ru-RU')} ₽</div>
-        </div>
-      `).join("");
-    }
-
-    const products = [
-      { id: 1, tab: 'kits', sub: 'therapy', img: 'INVOKA-9b0b51d7-51c0-4762-ab84-2d23ca4aa0e9-res-0.png', name: 'Терапевтический набор студента (базовый)', price: 4900 },
-      { id: 2, tab: 'kits', sub: 'endo', icon: '📍', name: 'Эндодонтический набор (файлы, плаггеры)', price: 3400 },
-      { id: 3, tab: 'kits', sub: 'surgery', icon: '🪡', name: 'Хирургический набор (щипцы, элеваторы)', price: 5800 },
-      { id: 4, tab: 'kits', sub: 'ozpt', icon: '🦷', name: 'Набор для фантомного курса ОЗПТ', price: 6200 },
-      { id: 5, tab: 'instruments', icon: '⚡', name: 'Турбинный наконечник с LED', price: 3900 },
-      { id: 6, tab: 'instruments', icon: '⚙️', name: 'Угловой механический наконечник 1:1', price: 2600 },
-      { id: 7, tab: 'instruments', icon: '🛡️', name: 'Набор коффердама с клампами', price: 4200 },
-      { id: 8, tab: 'clothes', icon: '🥼', name: 'Медицинский костюм (хлопок)', price: 2800 },
-      { id: 9, tab: 'clothes', icon: '👓', name: 'Защитные оптические очки', price: 850 },
-      { id: 10, tab: 'courseworks', icon: '📑', name: 'Курсовая: Пропедевтика / Материалы', price: 1500 },
-      { id: 11, tab: 'courseworks', icon: '📑', name: 'Курсовая: Остеохондроз и эргономика', price: 1800 },
-      { id: 12, tab: 'courses', icon: '🎓', name: 'Курс по препарированию полостей', price: 2500 }
-    ];
-
-    let currentTab = 'kits';
-    let currentSub = 'therapy';
-    let cart = {};
-
-            function renderCatalog() {
-      const container = document.getElementById("catalog-grid");
-      if (!container) return;
-      container.innerHTML = "";
-
-      const filtered = products.filter(p => {
-        if (p.tab !== currentTab) return false;
-        if (currentTab === 'kits' && p.sub !== currentSub) return false;
-        return true;
-      });
-
-      filtered.forEach(p => {
-        const count = cart[p.id] || 0;
-        const card = document.createElement("div");
-        card.className = "card";
-
-        // Обработчик клика для открытия окна товара WB/Ozon
-        card.onclick = (e) => {
-          if (e.target.tagName === 'BUTTON' || e.target.closest('.counter')) return;
-          openProductDetail(p.id);
-        };
-
-        // Внутрь innerHTML передаётся ТОЛЬКО чистая разметка
-        card.innerHTML = `
-          <div class="card-img-box">
-            ${p.img 
-              ? `<img src="${p.img}" alt="${p.name}" class="card-product-img">`
-              : `<span style="font-size:36px;">${p.icon || '📦'}</span>`
-            }
-          </div>
-          <div class="card-title">${p.name}</div>
-          <div class="card-price">${p.price.toLocaleString('ru-RU')} ₽</div>
-          ${count === 0 
-            ? `<button class="btn-buy" onclick="updateCart(${p.id}, 1)">В корзину</button>`
-            : `<div class="counter">
-                <button onclick="updateCart(${p.id}, -1)">−</button>
-                <span>${count}</span>
-                <button onclick="updateCart(${p.id}, 1)">+</button>
-               </div>`
-          }
-        `;
-
-        container.appendChild(card);
-      });
-
-      updateCartBar();
-    }
-
-    function switchMainTab(tab, el) {
-      currentTab = tab;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-      const sub = document.getElementById('kits-subtabs');
-      if (sub) sub.style.display = (tab === 'kits') ? 'flex' : 'none';
-      renderCatalog();
-    }
-
-    function switchSubTab(sub, el) {
-      currentSub = sub;
-      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-      renderCatalog();
-    }
-
-    function updateCart(id, delta) {
-      cart[id] = (cart[id] || 0) + delta;
-      if (cart[id] <= 0) delete cart[id];
-      renderCatalog();
-    }
-
-    function updateCartBar() {
-      let total = 0, count = 0;
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          count += cart[id];
-        }
-      }
-      const bar = document.getElementById("cart-float");
-      if (!bar) return;
-      if (count > 0) {
-        bar.style.display = "flex";
-        document.getElementById("cart-count").innerText = `${count} шт.`;
-        document.getElementById("cart-total").innerText = `Оформить ${total.toLocaleString('ru-RU')} ₽ →`;
-      } else {
-        bar.style.display = "none";
-      }
-    }
-
-    function switchNav(page, el) {
-      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-      document.getElementById(`page-${page}`).classList.add('active');
-      el.classList.add('active');
-    }
-
-    function openCheckout() {
-      let total = 0, summary = [];
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          summary.push(`${p.name} × ${cart[id]}`);
-        }
-      }
-      document.getElementById("order-summary").innerHTML = `<b>Состав:</b><br>${summary.join("<br>")}<br><br><b>Итого:</b> ${total} ₽`;
-      document.getElementById("modal-order").classList.add("active");
-    }
-
-    function closeCheckout() {
-      document.getElementById("modal-order").classList.remove("active");
-    }
-
-    async function sendOrder() {
-      const activeUser = JSON.parse(localStorage.getItem("active_student_user"));
-      if (!activeUser) {
-        alert("Пожалуйста, войдите в свой профиль или зарегистрируйтесь перед оформлением заказа!");
-        closeCheckout();
-        switchNav('profile', document.querySelectorAll('.nav-item')[1]);
-        return;
-      }
-
-      let total = 0, itemsList = [];
-      for (let id in cart) {
-        const p = products.find(i => i.id == id);
-        if (p) {
-          total += p.price * cart[id];
-          itemsList.push(`${p.name} (x${cart[id]})`);
-        }
-      }
-
-      const orderBtn = document.getElementById('order-submit-btn');
-      orderBtn.innerText = "Оформление...";
-      orderBtn.disabled = true;
-
-      const comment = document.getElementById("order-comment").value.trim();
-      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-      const itemsString = itemsList.join(", ");
-
-      const newOrderData = {
-        id: orderId,
-        items: itemsString + (comment ? ` [${comment}]` : ""),
-        total: total,
-        date: new Date().toLocaleDateString('ru-RU')
-      };
-
-      try {
-        const users = await fetchUsersFromCloud();
-        const userIndex = users.findIndex(u => u.cleanUsername === activeUser.cleanUsername);
-
-        if (userIndex !== -1) {
-          if (!Array.isArray(users[userIndex].orders)) {
-            users[userIndex].orders = [];
-          }
-          users[userIndex].orders.unshift(newOrderData);
-          await saveUsersToCloud(users);
-        }
-      } catch (err) {
-        console.error("Ошибка сохранения заказа в БД:", err);
-      }
-
-      if (!Array.isArray(activeUser.orders)) {
-        activeUser.orders = [];
-      }
-      activeUser.orders.unshift(newOrderData);
-      localStorage.setItem("active_student_user", JSON.stringify(activeUser));
-
-      const tgUser = tg?.initDataUnsafe?.user;
-      const userLink = tgUser?.username ? `@${tgUser.username}` : `@${activeUser.cleanUsername}`;
-
-      const msg = `🛍️ <b>НОВЫЙ ЗАКАЗ: ${orderId}</b>\n\n` +
-                  `👤 <b>Студент:</b> ${activeUser.username} (${activeUser.course} курс)\n` +
-                  `📱 <b>Контакт:</b> ${userLink}\n` +
-                  `📦 <b>Состав:</b>\n• ${itemsList.join("\n• ")}\n\n` +
-                  `💰 <b>Сумма:</b> ${total.toLocaleString('ru-RU')} ₽\n` +
-                  (comment ? `📍 <b>Инфо:</b> ${comment}` : "");
-      sendTgAlert(msg);
-
-      cart = {};
-      orderBtn.innerText = "Подтвердить заказ";
-      orderBtn.disabled = false;
-
-      closeCheckout();
-      renderCatalog();
-      checkProfile();
-      alert(`Заказ ${orderId} успешно оформлен! Куратор свяжется с вами.`);
-    }
-
-    checkProfile();
-    renderCatalog();
-
-        // --- ЛОГИКА ЗМЕЙКИ ---
-    const canvas = document.getElementById("snake-canvas");
-    const ctx = canvas ? canvas.getContext("2d") : null;
-    const gridSize = 20;
-    const tileCount = 15;
-
-    let snake = [];
-    let food = { x: 5, y: 5 };
-    let dx = 1, dy = 0;
-    let nextDx = 1, nextDy = 0;
-    let snakeScore = 0;
-    let snakeBest = localStorage.getItem("snake_dent_best") || 0;
-    let snakeGameInterval = null;
-    let isSnakeRunning = false;
-
-    const bestEl = document.getElementById("snake-best");
-    if (bestEl) bestEl.innerText = snakeBest;
-
-    function startSnakeGame() {
-      snake = [
-        { x: 5, y: 7 },
-        { x: 4, y: 7 },
-        { x: 3, y: 7 }
-      ];
-      dx = 1; dy = 0;
-      nextDx = 1; nextDy = 0;
-      snakeScore = 0;
-      document.getElementById("snake-score").innerText = snakeScore;
-      document.getElementById("snake-overlay").style.display = "none";
-      document.getElementById("snake-promo-box").style.display = "none";
-
-      spawnTooth();
-      isSnakeRunning = true;
-      if (snakeGameInterval) clearInterval(snakeGameInterval);
-      snakeGameInterval = setInterval(gameLoop, 140);
-    }
-
-    function spawnTooth() {
-      let valid = false;
-      while (!valid) {
-        food.x = Math.floor(Math.random() * tileCount);
-        food.y = Math.floor(Math.random() * tileCount);
-        valid = !snake.some(segment => segment.x === food.x && segment.y === food.y);
-      }
-    }
-
-    function changeSnakeDir(dir) {
-      if (!isSnakeRunning) return;
-      if (dir === 'UP' && dy === 0) { nextDx = 0; nextDy = -1; }
-      if (dir === 'DOWN' && dy === 0) { nextDx = 0; nextDy = 1; }
-      if (dir === 'LEFT' && dx === 0) { nextDx = -1; nextDy = 0; }
-      if (dir === 'RIGHT' && dx === 0) { nextDx = 1; nextDy = 0; }
-    }
-
-    window.addEventListener("keydown", (e) => {
-      if (["ArrowUp", "KeyW"].includes(e.code)) changeSnakeDir('UP');
-      if (["ArrowDown", "KeyS"].includes(e.code)) changeSnakeDir('DOWN');
-      if (["ArrowLeft", "KeyA"].includes(e.code)) changeSnakeDir('LEFT');
-      if (["ArrowRight", "KeyD"].includes(e.code)) changeSnakeDir('RIGHT');
-    });
-
-    function gameLoop() {
-      dx = nextDx;
-      dy = nextDy;
-
-      const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-
-      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-        return gameOverSnake();
-      }
-
-      if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
-        return gameOverSnake();
-      }
-
-      snake.unshift(head);
-
-      if (head.x === food.x && head.y === food.y) {
-        snakeScore++;
-        document.getElementById("snake-score").innerText = snakeScore;
-        
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-          tg.HapticFeedback.impactOccurred('light');
-        }
-
-        if (snakeScore > snakeBest) {
-          snakeBest = snakeScore;
-          localStorage.setItem("snake_dent_best", snakeBest);
-          const bestSpan = document.getElementById("snake-best");
-          if (bestSpan) bestSpan.innerText = snakeBest;
-        }
-
-        spawnTooth();
-      } else {
-        snake.pop();
-      }
-
-      drawGame();
-    }
-
-    function drawGame() {
-      if (!ctx) return;
-      ctx.fillStyle = "#0c152e";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.font = "16px serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("🦷", food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2);
-
-      snake.forEach((seg, i) => {
-        ctx.fillStyle = (i === 0) ? "#38bdf8" : "rgba(56, 189, 248, 0.65)";
-        ctx.beginPath();
-        ctx.roundRect(seg.x * gridSize + 1, seg.y * gridSize + 1, gridSize - 2, gridSize - 2, 5);
-        ctx.fill();
-      });
-    }
-
-    function gameOverSnake() {
-      clearInterval(snakeGameInterval);
-      isSnakeRunning = false;
-
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        tg.HapticFeedback.notificationOccurred('error');
-      }
-
-      const overlay = document.getElementById("snake-overlay");
-      const title = document.getElementById("snake-over-title");
-      const desc = document.getElementById("snake-over-desc");
-      const promo = document.getElementById("snake-promo-box");
-
-      title.innerText = "Игра окончена!";
-      desc.innerText = `Ты собрал ${snakeScore} зубов.`;
-
-      if (snakeScore >= 5) {
-        promo.style.display = "block";
-      } else {
-        promo.style.display = "none";
-      }
-
-      overlay.style.display = "flex";
-    }
-
-
-        // --- ДЕТАЛЬНЫЙ ПРОСМОТР ТОВАРА WB/OZON ---
-    function openProductDetail(productId) {
-      const p = products.find(i => i.id == productId);
-      if (!p) return;
-
-      const imgBox = document.getElementById("pd-img-box");
-      if (p.img) {
-        imgBox.innerHTML = `<img src="${encodeURI(p.img)}" alt="${p.name}">`;
-      } else {
-        imgBox.innerHTML = `<div style="width:100%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; font-size:64px; background:rgba(0,0,0,0.3); border-radius:16px; margin-bottom:14px;">${p.icon || '📦'}</div>`;
-      }
-
-      document.getElementById("pd-title").innerText = p.name;
-      document.getElementById("pd-price").innerText = `${p.price.toLocaleString('ru-RU')} ₽`;
-      document.getElementById("pd-desc").innerText = p.desc || "Описание товара уточняется у куратора.";
-
-      const btnBox = document.getElementById("pd-action-btn-box");
-      const count = cart[p.id] || 0;
-      
-      btnBox.innerHTML = count === 0
-        ? `<button class="btn-buy" style="padding:14px; font-size:15px;" onclick="updateCart(${p.id}, 1); openProductDetail(${p.id});">Добавить в корзину</button>`
-        : `<div class="counter" style="padding:8px 12px; font-size:16px;">
-            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart(${p.id}, -1); openProductDetail(${p.id});">−</button>
-            <span style="font-size:16px;">В корзине: ${count} шт.</span>
-            <button style="width:36px; height:36px; font-size:18px;" onclick="updateCart(${p.id}, 1); openProductDetail(${p.id});">+</button>
-           </div>`;
-
-      document.getElementById("modal-product-detail").classList.add("active");
-    }
-
-    function closeProductDetail() {
-      document.getElementById("modal-product-detail").classList.remove("active");
-    }
-
-    // --- УПРАВЛЕНИЕ АДМИНКОЙ ---
-    let isAdminUser = false;
-
-    function checkAdminAccess() {
-      const tgUserId = String(tg?.initDataUnsafe?.user?.id || "");
-      const activeUser = JSON.parse(localStorage.getItem("active_student_user") || "{}");
-      if (tgUserId === String(ADMIN_CHAT_ID) || activeUser.isAdmin === true || activeUser.cleanUsername === "admin") {
-        isAdminUser = true;
-        const btn = document.getElementById("nav-item-admin");
-        if (btn) btn.style.display = "flex";
-      }
-    }
-
-    function toggleAdmSub() {
-      const tab = document.getElementById("adm-tab").value;
-      const subGroup = document.getElementById("adm-sub-group");
-      if (subGroup) subGroup.style.display = (tab === 'kits') ? 'block' : 'none';
-    }
-
-    async function saveNewProduct() {
-      if (!isAdminUser) {
-        alert("У вас нет прав администратора!");
-        return;
-      }
-
-      const name = document.getElementById("adm-name").value.trim();
-      const tab = document.getElementById("adm-tab").value;
-      const sub = document.getElementById("adm-sub").value;
-      const price = parseInt(document.getElementById("adm-price").value, 10);
-      const img = document.getElementById("adm-img").value.trim();
-      const icon = document.getElementById("adm-icon").value.trim();
-      const desc = document.getElementById("adm-desc").value.trim();
-
-      if (!name || isNaN(price) || price <= 0) {
-        alert("Укажите корректное название и цену товара!");
-        return;
-      }
-
-      const btn = document.getElementById("adm-save-btn");
-      btn.innerText = "Сохранение...";
-      btn.disabled = true;
-
-      const newProd = {
-        id: Date.now(),
-        tab: tab,
-        sub: (tab === 'kits') ? sub : undefined,
-        name: name,
-        price: price,
-        img: img || undefined,
-        icon: (!img && icon) ? icon : (img ? undefined : '📦'),
-        desc: desc || "Описание скоро появится."
-      };
-
-      // Добавляем в локальный каталог и сохраняем
-      products.unshift(newProd);
-      localStorage.setItem("custom_dent_products", JSON.stringify(products));
-
-      alert("✅ Товар успешно добавлен!");
-      document.getElementById("adm-name").value = "";
-      document.getElementById("adm-price").value = "";
-      document.getElementById("adm-img").value = "";
-      document.getElementById("adm-icon").value = "";
-      document.getElementById("adm-desc").value = "";
-
-      btn.innerText = "Опубликовать товар";
-      btn.disabled = false;
-
-      renderCatalog();
-      renderAdminProducts();
-    }
-
-    function deleteProduct(id) {
-      if (!confirm("Удалить этот товар из магазина?")) return;
-      products = products.filter(p => p.id != id);
-      localStorage.setItem("custom_dent_products", JSON.stringify(products));
-      renderCatalog();
-      renderAdminProducts();
-    }
-
-    function renderAdminProducts() {
-      const container = document.getElementById("adm-prod-list");
-      const countEl = document.getElementById("adm-prod-count");
-      if (!container) return;
-      countEl.innerText = products.length;
-
-      container.innerHTML = products.map(p => `
-        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
-          <div>
-            <div style="font-weight:700; font-size:13px; color:#fff;">${p.name}</div>
-            <div style="font-size:11px; color:var(--hint);">${p.price.toLocaleString('ru-RU')} ₽ • ${p.tab}</div>
-          </div>
-          <button onclick="deleteProduct(${p.id})" style="background:var(--danger); border:none; color:#fff; border-radius:6px; padding:6px 10px; font-size:11px; cursor:pointer;">Удалить</button>
-        </div>
-      `).join("");
-    }
-
-    // Инициализация кастомных товаров при запуске
-    const savedCustomProds = localStorage.getItem("custom_dent_products");
-    if (savedCustomProds) {
-      try { products = JSON.parse(savedCustomProds); } catch(e){}
-    }
-    checkAdminAccess();
-    renderAdminProducts();
     
-  </script>
-</body>
-</html>
-
