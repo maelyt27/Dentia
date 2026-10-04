@@ -185,16 +185,18 @@
       background: linear-gradient(135deg, #38bdf8, #2563eb) !important;
       box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5) !important;
     }
-        /* Принудительное ограничение размера для любых картинок в карточках */
+
+    
     .card img {
       width: 100% !important;
-      height: 110px !important;
-      object-fit: cover !important;
+      height: 180px !important;
+      object-fit: contain !important; /* Показывает ВСЮ картинку целиком без обрезки */
+      background: rgba(0, 0, 0, 0.25); /* Аккуратная подложка, если фото не совпадает по пропорциям */
       border-radius: 12px !important;
       display: block !important;
       margin-bottom: 8px !important;
     }
-    
+  
   </style>
 </head>
 <body>
