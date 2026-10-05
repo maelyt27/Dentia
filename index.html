@@ -223,6 +223,11 @@ select option{background:#101a36}
       <div class="avatar" id="prof-avatar"></div>
       <div><div style="font-weight:800;font-size:17px" id="prof-name"></div><div style="color:var(--hint);font-size:13px" id="prof-username"></div></div>
     </div>
+    <div id="prof-summary" hidden>
+      <div id="prof-summary-text" style="font-size:14px;line-height:1.7;color:#cbd5e1;margin-bottom:12px"></div>
+      <button class="btn-buy" style="background:rgba(255,255,255,.1);box-shadow:none" onclick="editProfile(true)">✏️ Изменить данные</button>
+    </div>
+    <div id="prof-form">
     <div class="cols">
       <div class="form-group"><label for="prof-course">Курс</label>
         <select id="prof-course"><option value="">Не указан</option><option>1 курс</option><option>2 курс</option><option>3 курс</option><option>4 курс</option><option>5 курс</option><option>Ординатор</option><option>Врач</option></select></div>
@@ -230,6 +235,7 @@ select option{background:#101a36}
     </div>
     <div class="form-group"><label for="prof-university">ВУЗ / колледж</label><input id="prof-university" placeholder="Например: МГМСУ"></div>
     <button class="btn-buy big" id="prof-save" onclick="saveProfile()">Сохранить профиль</button>
+    </div>
   </div>
   <div class="box"><h4>📦 Мои заказы</h4><div id="orders-history" style="font-size:13px;color:var(--hint)"></div></div>
 </div>
@@ -362,7 +368,7 @@ select option{background:#101a36}
 /* ===== НАСТРОЙКИ =====
    Токены и ключи здесь больше НЕ хранятся — они лежат в Apps Script (Code.gs).
    Сюда вставляется только ссылка веб-приложения (заканчивается на /exec). */
-const API_URL = "https://script.google.com/macros/s/AKfycbxxjT3eN2cWjthB4jljtJgH8BvFjxwh04Bj4ftTKzHv7atQYkii9gVmBDdY9Tuio-6UZA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxqi0VlEThgV5yJNpPd9TRtaMZjQyqnwpBJhxrPrNmKqH1vFo7H753KxmZT2kOFxxHRNQ/execЕ";
 const MANAGER_LINK = "https://t.me/newwwaff";
 
 const TAB_NAMES = { kits: 'Наборы', instruments: 'Инструментарий', clothes: 'Спецодежда', courseworks: 'Курсовые', courses: 'Курсы' };
@@ -387,22 +393,34 @@ const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } cat
 
 let products = load('adm_products', []), cart = load('adm_cart', {});
 let currentTab = 'kits', currentSub = 'therapy', loading = true;
-let user = null, orders = [], isAdminUser = false, promo = null, adminOrders = [], pendingImage = '', toastT;
+// Профиль и заказы показываются мгновенно из памяти телефона, свежие данные подгружаются в фоне
+const tgId = String(tg?.initDataUnsafe?.user?.id || '');
+const cachedUser = load('adm_user', null);
+let user = (inTelegram && cachedUser && cachedUser.id === tgId) ? cachedUser : null;
+let orders = user ? load('adm_orders', []) : [], isAdminUser = !!(user && load('adm_admin', false));
+let promo = null, adminOrders = [], pendingImage = '', toastT, editingProfile = false;
+if (user) loading = false;
 
 const visible = () => products.filter(p => p.active !== false);
 const findP = id => products.find(p => String(p.id) === String(id));
 
 async function api(action, data) {
   if (!/^https:\/\//.test(API_URL)) throw new Error('не указан API_URL в коде');
-  const r = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(Object.assign({ action, initData: tg?.initData || '' }, data || {}))
-  });
-  if (!r.ok) throw new Error('сервер ответил ' + r.status);
-  const j = await r.json();
-  if (!j.ok) throw new Error(j.error || 'ошибка сервера');
-  return j;
+  const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 25000);
+  try {
+    const r = await fetch(API_URL, {
+      method: 'POST', signal: ctrl.signal,
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action, initData: tg?.initData || '' }, data || {}))
+    });
+    let j;
+    try { j = JSON.parse(await r.text()); } catch (e) { throw new Error('сервер вернул не JSON — проверьте доступ «Все» в развертывании'); }
+    if (!j.ok) throw new Error(j.error || 'ошибка сервера');
+    return j;
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error('сервер не ответил за 25 секунд');
+    throw e;
+  } finally { clearTimeout(t); }
 }
 
 /* ---------- эффекты ---------- */
@@ -452,7 +470,7 @@ function countUp() {
     (function step(t) { const k = Math.min(1, (t - t0) / 900); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); })(t0);
   });
 }
-const phrases = ['Наборы для фантомов и практики', 'Инструменты и спецодежда для клиники', 'Курсовые и видеокурсы', 'Доставка СДЭК или в университет'];
+const phrases = ['Наборы для оттачивания мануальных навыков', 'Инструменты и расходный материал', 'Хирургички', 'Самовывоз или доставка в любую точку России'];
 let pi = 0, ci = 0, del = false;
 function typer() {
   const el = $('typed'), w = phrases[pi];
@@ -598,7 +616,7 @@ async function sendOrder() {
     const items = Object.keys(cart).map(id => ({ id, qty: cart[id] }));
     const j = await api('order', { items, promo: promo ? promo.code : '', phone, comment });
     cart = {}; promo = null; save('adm_cart', {}); save('adm_pending_promo', '');
-    orders = j.orders || orders;
+    orders = j.orders || orders; save('adm_orders', orders);
     $('promo-input').value = ''; $('promo-msg').textContent = ''; $('order-comment').value = '';
     closeCheckout(); renderCatalog(false); renderProfile();
     confetti(); notify('success');
@@ -621,7 +639,14 @@ function renderProfile() {
     $('prof-avatar').innerHTML = user.photo ? `<img src="${esc(user.photo)}" alt="">` : esc((user.name || user.username || '?').charAt(0).toUpperCase());
     $('prof-name').textContent = user.name || 'Студент';
     $('prof-username').textContent = (user.username ? '@' + user.username : '') + (user.course ? ' · ' + user.course : '');
-    $('prof-course').value = user.course || ''; $('prof-university').value = user.university || ''; $('prof-phone').value = user.phone || '';
+    const filled = !!(user.course || user.university || user.phone);
+    const showForm = editingProfile || !filled;
+    $('prof-form').hidden = !showForm; $('prof-summary').hidden = showForm;
+    $('prof-summary-text').innerHTML =
+      `🎓 ${esc(user.course || 'Курс не указан')}<br>🏛️ ${esc(user.university || 'ВУЗ не указан')}<br>📱 ${esc(user.phone || 'Телефон не указан')}`;
+    if (showForm && document.activeElement?.closest?.('#prof-form') == null) {
+      $('prof-course').value = user.course || ''; $('prof-university').value = user.university || ''; $('prof-phone').value = user.phone || '';
+    }
     $('hello').textContent = `Привет, ${(user.name || user.username || 'коллега').split(' ')[0]}! 👋`;
   }
   $('orders-history').innerHTML = orders.length ? orders.map(o => `<div class="order-item">
@@ -631,12 +656,24 @@ function renderProfile() {
       <b style="color:#fff">${money(o.total)}</b>${o.discount ? ` <span style="color:var(--ok);font-size:12px">скидка ${money(o.discount)}</span>` : ''}</div>`).join('')
     : 'У вас пока нет заказов. Загляните в каталог 🛍️';
 }
+function editProfile(on) {
+  editingProfile = on; haptic(); renderProfile();
+  if (on) $('prof-course').focus();
+}
+// Сохранение сразу на экране, запись в таблицу — в фоне
 async function saveProfile() {
-  const btn = $('prof-save'); btn.disabled = true; btn.textContent = 'Сохраняем…';
   const data = { course: $('prof-course').value, university: $('prof-university').value.trim(), phone: $('prof-phone').value.trim() };
-  try { await api('saveProfile', data); Object.assign(user, data); renderProfile(); toast('✅ Профиль сохранён'); notify('success'); }
-  catch (e) { toast('Профиль не сохранён: ' + e.message, true); }
-  btn.disabled = false; btn.textContent = 'Сохранить профиль';
+  const prev = Object.assign({}, user);
+  Object.assign(user, data); save('adm_user', user);
+  editingProfile = false; renderProfile();
+  toast('✅ Профиль сохранён'); notify('success');
+  try { await api('saveProfile', data); }
+  catch (e) {
+    Object.assign(user, prev); save('adm_user', user);
+    editingProfile = true; renderProfile();
+    $('prof-course').value = data.course; $('prof-university').value = data.university; $('prof-phone').value = data.phone;
+    toast('Профиль не сохранён: ' + e.message, true);
+  }
 }
 function openManager() { tg?.openTelegramLink ? tg.openTelegramLink(MANAGER_LINK) : open(MANAGER_LINK, '_blank'); }
 
@@ -781,11 +818,14 @@ async function gameOverSnake() {
 /* ---------- старт ---------- */
 async function init() {
   $('notg-banner').hidden = inTelegram;
+  $('nav-item-admin').hidden = !isAdminUser;
+  if (isAdminUser) renderAdminProducts();
   renderCatalog(true); renderHits(); renderProfile(); countUp(); typer(); drawGame();
   try {
     const j = await api('init');
     products = j.products || []; user = j.user; orders = j.orders || []; isAdminUser = !!j.isAdmin;
     save('adm_products', visible()); cleanCart();
+    save('adm_user', user); save('adm_orders', orders); save('adm_admin', isAdminUser);
     $('nav-item-admin').hidden = !isAdminUser;
     if (isAdminUser) renderAdminProducts();
   } catch (e) { toast('Нет связи с сервером: ' + e.message, true); }
