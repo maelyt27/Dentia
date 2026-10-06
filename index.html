@@ -385,7 +385,11 @@ const STATUS_COLORS = {
 
 const $ = id => document.getElementById(id);
 const tg = window.Telegram?.WebApp;
-if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor?.('#070b18'); tg.setBackgroundColor?.('#070b18'); }
+if (tg) {
+  tg.ready(); tg.expand();
+  try { tg.disableVerticalSwipes?.(); } catch (e) {}
+  tg.setHeaderColor?.('#070b18'); tg.setBackgroundColor?.('#070b18');
+}
 const inTelegram = !!(tg && tg.initData);
 const haptic = (t = 'light') => { try { tg?.HapticFeedback?.impactOccurred(t); } catch (e) {} };
 const notify = t => { try { tg?.HapticFeedback?.notificationOccurred(t); } catch (e) {} };
